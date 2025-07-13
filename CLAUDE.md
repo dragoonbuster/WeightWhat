@@ -102,20 +102,80 @@ SizeComparator is a lightweight web application that converts weight inputs (lbs
 - Use type hints throughout the Python codebase
 - Write self-documenting code with minimal comments
 
-### Git Commit Standards
-- Use clear, descriptive commit messages
-- Present tense, imperative mood ("Add feature" not "Added feature")
-- First line: 50 characters max, capitalize, no period
-- Blank line between subject and body
-- Body: Wrap at 72 characters, explain what and why
+### Development Environment Workflow
+**CRITICAL**: Always follow this workflow when starting work:
+
+1. **Activate Virtual Environment (ALWAYS FIRST)**
+   ```bash
+   source venv/bin/activate
+   ```
+
+2. **Pull Latest Changes**
+   ```bash
+   git pull origin main
+   ```
+
+3. **Make Your Changes**
+   - Edit code, add features, fix bugs
+   - Test your changes thoroughly
+
+4. **Commit After Every Change (MANDATORY)**
+   ```bash
+   # Add your changes
+   git add .
+   
+   # Use the standard commit template (see below)
+   git commit -m "Your commit message here"
+   ```
+
+### Git Commit Template (MANDATORY FORMAT)
+Use this EXACT format for all commits:
+
+```
+<type>: <brief description (50 chars max)>
+
+<detailed description of what was changed and why>
+<wrap at 72 characters>
+
+🤖 Generated with Claude Code
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+```
+
+**Commit Types:**
+- `feat`: New feature implementation
+- `fix`: Bug fix
+- `docs`: Documentation changes
+- `style`: Code formatting (no functional changes)
+- `refactor`: Code restructuring (no functionality change)
+- `test`: Adding or updating tests
+- `config`: Configuration changes
+- `build`: Build system or dependency changes
+
+**Example Commit:**
+```
+feat: Add weight input validation with decimal precision
+
+- Implement comprehensive validation for weight inputs
+- Add support for multiple weight units (lbs, kg, g, oz)
+- Include range validation (0.1g to 1M kg)
+- Add specific error messages for invalid inputs
+
+🤖 Generated with Claude Code
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+```
 
 ### Testing Commands
 ```bash
-# Run all tests
-pytest tests/ -v
+# Activate environment first!
+source venv/bin/activate
 
-# Run with coverage
-pytest tests/ --cov=src --cov-report=html
+# Run all tests
+pytest tests/ -v --cov=src --cov-report=html
+
+# Run with coverage (alternative)
+make test
 
 # Type checking
 mypy src/
@@ -125,6 +185,9 @@ ruff check src/
 
 # Format code
 ruff format src/
+
+# Run all quality checks
+make lint
 ```
 
 ### Common Development Tasks
@@ -210,11 +273,12 @@ SizeComparator/
 ## Important Context for AI Assistants
 
 ### When Working on This Project:
-1. **Simplicity First**: Always choose the simplest solution that meets requirements
-2. **AI Provider Reliability**: Assume AI providers will fail and design accordingly
-3. **Configuration Over Code**: Prefer file-based configuration for behavior changes
-4. **Performance Matters**: Target sub-2 second response times for user requests
-5. **Commit Frequently**: User prefers incremental commits with clear messages
+1. **ALWAYS Activate Venv First**: Run `source venv/bin/activate` before any work
+2. **ALWAYS Commit After Changes**: Use the mandatory git commit template
+3. **Simplicity First**: Always choose the simplest solution that meets requirements
+4. **AI Provider Reliability**: Assume AI providers will fail and design accordingly
+5. **Configuration Over Code**: Prefer file-based configuration for behavior changes
+6. **Performance Matters**: Target sub-2 second response times for user requests
 
 ### Common Pitfalls:
 - Assuming AI providers always return valid responses
@@ -224,9 +288,11 @@ SizeComparator/
 - Creating files without planning the overall structure
 
 ### Testing Credentials:
-- OpenAI API key stored in OPENAI_API_KEY environment variable
-- Anthropic API key stored in ANTHROPIC_API_KEY environment variable
-- X.ai API key stored in XAI_API_KEY environment variable
+- Copy .env.example to .env and add your API keys:
+  - SIZECOMPARATOR_OPENAI_API_KEY=your_openai_key
+  - SIZECOMPARATOR_ANTHROPIC_API_KEY=your_anthropic_key  
+  - SIZECOMPARATOR_XAI_API_KEY=your_xai_key
+- Never commit .env file to git (already in .gitignore)
 
 ## Next Major Milestones
 
