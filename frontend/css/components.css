@@ -1,0 +1,129 @@
+/* Component Styles - Forms, buttons, results, and interactive elements */
+
+/* Form Components */
+.input-group {
+    margin: 20px 0;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+input, select, button {
+    width: 100%;
+    padding: 15px;
+    margin: 5px 0;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+input, select {
+    background: rgba(255,255,255,0.9);
+    color: #333;
+}
+
+/* Button Components */
+button {
+    background: linear-gradient(45deg, #4CAF50, #45a049);
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s;
+    border: none;
+    font-size: 18px;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+}
+
+button:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.comparison-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.comparison-buttons button {
+    padding: 10px;
+    font-size: 14px;
+}
+
+/* Interactive Examples */
+.example-item {
+    display: inline-block;
+    background: rgba(255,255,255,0.1);
+    padding: 5px 10px;
+    margin: 3px;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: background 0.3s;
+    font-size: 0.9em;
+}
+
+.example-item:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+/* Result Display Components */
+#result {
+    margin-top: 20px;
+    padding: 20px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px;
+    min-height: 50px;
+    display: none;
+    border-left: 5px solid #4CAF50;
+}
+
+/* Result State Styles */
+.loading {
+    text-align: center;
+    color: #ffd700;
+    animation: pulse 2s infinite;
+}
+
+.error {
+    color: #ff6b6b;
+    background: rgba(255,0,0,0.1);
+    border-left-color: #ff6b6b;
+}
+
+.success {
+    color: #51cf66;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .comparison-buttons {
+        grid-template-columns: 1fr;
+    }
+    
+    .subtitle {
+        font-size: 1em;
+    }
+    
+    h1 {
+        font-size: 2em;
+    }
+    
+    .container {
+        padding: 20px;
+    }
+    
+    body {
+        padding: 10px;
+    }
+}

@@ -102,6 +102,37 @@ monitoring:
     interval_seconds: 30
     timeout_seconds: 5
 
+# Service Factory Configuration
+service_factory:
+  # Service selection strategy
+  default_strategy: "smart_routing"  # smart_routing, performance_first, accuracy_first, basic_only
+  
+  # Weight thresholds for service selection (in kg)
+  weight_thresholds:
+    light_weight: 0.1
+    heavy_weight: 100.0
+    extreme_weight: 1000.0
+  
+  # Timeout thresholds for service selection (in ms)
+  timeout_thresholds:
+    fast_timeout: 2000
+    standard_timeout: 5000
+  
+  # Environment-specific behavior
+  environment_overrides:
+    development:
+      force_basic_service: false
+      allow_all_services: true
+    production:
+      require_validation: true
+      minimum_service_level: "fast_validation"
+  
+  # Performance tuning
+  performance:
+    cache_availability_ttl: 300  # 5 minutes
+    ai_provider_preference: ["openai", "anthropic", "xai"]
+    parallel_validation_enabled: true
+
 # Security Configuration
 security:
   cors:
