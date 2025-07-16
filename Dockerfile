@@ -53,5 +53,17 @@ EXPOSE 8000 9090
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
+# Set environment for production
+ENV PYTHONUNBUFFERED=1
+ENV SIZECOMPARATOR_ENV=production
+
 # Run the application
-CMD ["python", "run_unified_server.py"]
+# Use gunicorn in production, can override with docker run command
+CMD ["gunicorn", "src.api.unified_app:create_unified_app", \
+     "--factory", \
+     "--bind", "0.0.0.0:8000", \
+     "--workers", "4", \
+     "--worker-class", "uvicorn.workers.UvicornWorker", \
+     "--timeout", "120", \
+     "--access-logfile", "-", \
+     "--error-logfile", "-"]
