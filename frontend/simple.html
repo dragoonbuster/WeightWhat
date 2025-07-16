@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Weight, What?</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            background-color: #0a0a0a;
+            color: #00ff00;
+            font-family: monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #1a1a1a;
+            border: 2px solid #00ff00;
+            border-radius: 8px;
+            padding: 40px;
+            max-width: 500px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        }
+        h1 {
+            text-align: center;
+            font-size: 32px;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+        }
+        .subtitle {
+            text-align: center;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #0a0a0a;
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            font-family: monospace;
+        }
+        button {
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+        button:hover {
+            background-color: #00ff00;
+            color: #0a0a0a;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #00ff00;
+            background-color: #0f0f0f;
+            display: none;
+        }
+        .examples {
+            font-size: 12px;
+            margin: 20px 0;
+        }
+        .example-item {
+            display: inline-block;
+            margin: 0 10px;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Weight, What?</h1>
+        <div class="subtitle">Turn boring numbers into mind-blowing comparisons!</div>
+        
+        <div class="examples">
+            Try: 
+            <span class="example-item" onclick="document.getElementById('weight').value='75 kg'">75 kg</span>
+            <span class="example-item" onclick="document.getElementById('weight').value='10 pounds'">10 pounds</span>
+            <span class="example-item" onclick="document.getElementById('weight').value='500 grams'">500 grams</span>
+        </div>
+        
+        <input type="text" id="weight" placeholder="Enter weight (e.g., 5 kg, 10 pounds)">
+        <button onclick="compareWeight()">Compare Weight</button>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        // Simple weight comparisons - no backend needed!
+        const comparisons = {
+            tiny: [
+                "{weight} is about as heavy as a paperclip",
+                "{weight} is roughly the weight of a grain of rice",
+                "{weight} weighs about as much as a raindrop"
+            ],
+            light: [
+                "{weight} is about as heavy as a smartphone",
+                "{weight} is roughly the weight of a banana",
+                "{weight} weighs about as much as a hamster",
+                "{weight} is like carrying a small book"
+            ],
+            medium: [
+                "{weight} is about as heavy as a laptop",
+                "{weight} is roughly the weight of a newborn baby",
+                "{weight} weighs about as much as a bowling ball",
+                "{weight} is like carrying a watermelon"
+            ],
+            heavy: [
+                "{weight} is about as heavy as a golden retriever",
+                "{weight} is roughly the weight of a microwave oven",
+                "{weight} weighs about as much as a car tire",
+                "{weight} is like carrying a small child"
+            ],
+            veryHeavy: [
+                "{weight} is about as heavy as a refrigerator",
+                "{weight} is roughly the weight of a grand piano",
+                "{weight} weighs about as much as a small car",
+                "{weight} is like carrying a whole vending machine"
+            ]
+        };
+
+        function parseWeight(input) {
+            const match = input.toLowerCase().match(/([\d.]+)\s*(\w+)/);
+            if (!match) return null;
+            
+            const value = parseFloat(match[1]);
+            const unit = match[2];
+            
+            const conversions = {
+                'kg': 1, 'g': 0.001, 'mg': 0.000001,
+                'lb': 0.453592, 'lbs': 0.453592,
+                'pound': 0.453592, 'pounds': 0.453592,
+                'oz': 0.0283495, 'ounce': 0.0283495,
+                'ton': 1000, 'tons': 1000
+            };
+            
+            const kg = value * (conversions[unit] || 1);
+            return { kg, display: input };
+        }
+
+        function getCategory(kg) {
+            if (kg < 0.01) return 'tiny';
+            if (kg < 1) return 'light';
+            if (kg < 50) return 'medium';
+            if (kg < 500) return 'heavy';
+            return 'veryHeavy';
+        }
+
+        function compareWeight() {
+            const input = document.getElementById('weight').value;
+            const result = document.getElementById('result');
+            
+            if (!input) {
+                result.style.display = 'block';
+                result.innerHTML = 'Please enter a weight!';
+                return;
+            }
+            
+            const parsed = parseWeight(input);
+            if (!parsed) {
+                result.style.display = 'block';
+                result.innerHTML = 'Invalid weight format. Try "5 kg" or "10 pounds"';
+                return;
+            }
+            
+            const category = getCategory(parsed.kg);
+            const options = comparisons[category];
+            const comparison = options[Math.floor(Math.random() * options.length)];
+            
+            result.style.display = 'block';
+            result.innerHTML = comparison.replace('{weight}', parsed.display);
+            
+            // Update counter
+            const count = parseInt(localStorage.getItem('weightCount') || '0') + 1;
+            localStorage.setItem('weightCount', count);
+        }
+
+        // Enter key support
+        document.getElementById('weight').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') compareWeight();
+        });
+    </script>
+</body>
+</html>
