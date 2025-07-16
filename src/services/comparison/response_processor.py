@@ -334,6 +334,9 @@ class ResponseEnhancer:
     def _polish_comparison_text(self, text: str) -> str:
         """Polish the comparison text for better readability"""
         
+        # Strip emojis, symbols, and emoticons
+        text = self._strip_emojis_and_symbols(text)
+        
         # Ensure proper capitalization
         if text and not text[0].isupper():
             text = text[0].upper() + text[1:]
@@ -347,6 +350,62 @@ class ResponseEnhancer:
         text = re.sub(r'\s+([.!?])', r'\1', text)  # Space before punctuation
         
         return text
+    
+    def _strip_emojis_and_symbols(self, text: str) -> str:
+        """Remove emojis, symbols, and emoticons from text"""
+        if not text:
+            return text
+            
+        # Remove emojis (Unicode emoji ranges)
+        emoji_pattern = re.compile(
+            "["
+            "\U0001F600-\U0001F64F"  # emoticons
+            "\U0001F300-\U0001F5FF"  # symbols & pictographs
+            "\U0001F680-\U0001F6FF"  # transport & map symbols
+            "\U0001F1E0-\U0001F1FF"  # flags (iOS)
+            "\U00002500-\U00002BEF"  # chinese char
+            "\U00002702-\U000027B0"  # dingbats
+            "\U00002000-\U0000206F"  # general punctuation
+            "\U000024C2-\U0001F251"  # enclosed characters
+            "\U0001f926-\U0001f937"  # supplemental symbols
+            "\U00010000-\U0010ffff"  # supplemental multilingual plane
+            "\u2640-\u2642"          # gender symbols
+            "\u2600-\u2B55"          # misc symbols
+            "\u200d"                 # zero width joiner
+            "\u23cf"                 # eject symbol
+            "\u23e9"                 # fast forward
+            "\u231a"                 # watch
+            "\ufe0f"                 # variation selector
+            "\u3030"                 # wavy dash
+            "]+",
+            flags=re.UNICODE
+        )
+        
+        # Remove common emoticons and symbols
+        text = emoji_pattern.sub('', text)
+        
+        # Remove common ASCII emoticons and symbols
+        ascii_emoticons = [
+            ':)', ':(', ':D', ':P', ':p', ';)', ':/', ':|', ':o', ':O',
+            ':-)', ':-(', ':-D', ':-P', ':-p', ';-)', ':-/', ':-|', ':-o', ':-O',
+            '=)', '=(', '=D', '=P', '=p', ';=)', '=/', '=|', '=o', '=O',
+            '♥', '♡', '★', '☆', '✓', '✔', '✗', '✘', '→', '←', '↑', '↓', '←→',
+            '•', '◆', '◇', '■', '□', '●', '○', '▲', '△', '▼', '▽', '◄', '►',
+            '※', '⚡', '⭐', '🔥', '💯', '✨', '🎉', '🎊', '🚀', '💪', '👍', '👎',
+            '❤', '💕', '💖', '💗', '💘', '💙', '💚', '💛', '💜', '🖤', '🤍', '🤎',
+            '💔', '❣', '💟', '♦', '♣', '♠', '♪', '♫', '♬', '♭', '♮', '♯'
+        ]
+        
+        for emoticon in ascii_emoticons:
+            text = text.replace(emoticon, '')
+            
+        # Remove bullet points and list markers that aren't standard punctuation
+        text = re.sub(r'[•◆◇■□●○▲△▼▽◄►※]', '', text)
+        
+        # Remove multiple spaces created by removals
+        text = re.sub(r'\s+', ' ', text)
+        
+        return text.strip()
         
     def _generate_visualization_prompt(
         self,
