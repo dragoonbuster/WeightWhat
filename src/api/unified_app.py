@@ -517,13 +517,7 @@ class UnifiedSizeComparatorApp:
                 if type(optimal_service).__name__.lower() in capabilities.service_type.value:
                     return service_type_to_mode.get(service_type, ServiceMode.FAST_VALIDATION)
         
-        # Priority 4: Environment-based defaults
-        if self.env_manager.environment == EnvironmentType.PRODUCTION:
-            return ServiceMode.FULL_VALIDATION
-        elif self.env_manager.environment == EnvironmentType.DEVELOPMENT:
-            return ServiceMode.BASIC
-        
-        # Priority 5: Application default
+        # Priority 4: Application default (environment-aware)
         return self.config["default_service_mode"]
     
     async def _get_service_for_mode(self, mode: ServiceMode) -> BaseComparisonService:

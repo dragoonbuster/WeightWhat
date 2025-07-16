@@ -7,6 +7,7 @@ class SizeComparatorApp {
     constructor() {
         this.api = new SizeComparatorAPI();
         this.initializeEventListeners();
+        this.initializeCounter();
     }
 
     /**
@@ -21,6 +22,57 @@ class SizeComparatorApp {
                     this.compareWeight('fast');
                 }
             });
+        }
+    }
+
+    /**
+     * Initialize the comparison counter
+     */
+    initializeCounter() {
+        this.loadCounter();
+        this.updateCounterDisplay();
+    }
+
+    /**
+     * Load counter from localStorage
+     */
+    loadCounter() {
+        const savedCounter = localStorage.getItem('weightComparisons');
+        this.comparisonCount = savedCounter ? parseInt(savedCounter, 10) : 0;
+    }
+
+    /**
+     * Save counter to localStorage
+     */
+    saveCounter() {
+        localStorage.setItem('weightComparisons', this.comparisonCount.toString());
+    }
+
+    /**
+     * Update the counter display
+     */
+    updateCounterDisplay() {
+        const counterElement = document.getElementById('counter');
+        if (counterElement) {
+            counterElement.textContent = this.comparisonCount.toLocaleString();
+        }
+    }
+
+    /**
+     * Increment the comparison counter
+     */
+    incrementCounter() {
+        this.comparisonCount++;
+        this.saveCounter();
+        this.updateCounterDisplay();
+        
+        // Add animation
+        const counterDisplay = document.querySelector('.counter-display');
+        if (counterDisplay) {
+            counterDisplay.classList.add('increment');
+            setTimeout(() => {
+                counterDisplay.classList.remove('increment');
+            }, 500);
         }
     }
 
@@ -111,6 +163,9 @@ class SizeComparatorApp {
      */
     showSuccessResult(data, mode, clientTime) {
         const resultDiv = document.getElementById('result');
+        
+        // Increment counter for successful comparisons
+        this.incrementCounter();
         
         // Get validation info
         let validationInfo = '';

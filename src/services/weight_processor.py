@@ -68,7 +68,7 @@ class SimpleConfig:
     def get(self, key: str, default: Any = None) -> Any:
         config_map = {
             "comparison.precision": 2,
-            "validation.min_weight_kg": 0.001,
+            "validation.min_weight_kg": 0.0001,  # Allow down to 0.1mg
             "validation.max_weight_kg": 1000000,
         }
         return config_map.get(key, default)
@@ -701,7 +701,7 @@ class WeightItem(BaseModel):
     """Weight item model for API responses - EXACT match with BACKEND_CORE_SPEC"""
     name: str = Field(default="processed_weight", min_length=1, max_length=100)
     original_input: str = Field(..., min_length=1)
-    weight_kg: Decimal = Field(..., gt=Decimal('0.001'), le=Decimal('1000000'))
+    weight_kg: Decimal = Field(..., gt=Decimal('0.0001'), le=Decimal('1000000'))
     weight_display: str = Field(..., min_length=1)
     unit_used: WeightUnit
     confidence: float = Field(default=1.0, ge=0.0, le=1.0)

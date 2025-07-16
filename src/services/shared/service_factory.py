@@ -191,7 +191,19 @@ class ComparisonServiceFactory:
     def create_basic_service(self) -> BaseComparisonService:
         """Create basic comparison service for simple use cases"""
         try:
-            # Import here to avoid circular imports
+            # First try to use enhanced fallback if repository exists
+            from pathlib import Path
+            repository_file = Path("fallback_responses.json")
+            if repository_file.exists():
+                try:
+                    from ..enhanced_fallback_service import EnhancedFallbackService
+                    service = EnhancedFallbackService()
+                    self.logger.info("Created enhanced fallback service with pre-generated responses")
+                    return service
+                except Exception as e:
+                    self.logger.warning(f"Failed to load enhanced fallback service: {e}")
+            
+            # Otherwise use basic MVP service
             from ..mvp_comparison import MVPComparisonService
             service = MVPComparisonService()
             self.logger.info("Created basic comparison service")

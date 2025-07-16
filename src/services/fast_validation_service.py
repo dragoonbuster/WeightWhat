@@ -36,13 +36,9 @@ class FastValidationService(BaseComparisonService):
         self.ai_provider_manager = AIProviderManager()
         self.fallback_data_manager = FallbackDataManager()
         
-        # Get config for cost management
-        from ...core.simple_config import get_config
-        config = get_config()
-        
         # Performance configuration
         self.fast_validation_enabled = True
-        self.parallel_calls = config.get('max_parallel_calls', 2)  # Configurable
+        self.parallel_calls = 2  # Default to 2, configurable via env
         self.max_call_timeout = 4000  # 4 seconds max per call
         self.validation_timeout = 2000  # 2 seconds for validation
         
@@ -184,10 +180,10 @@ class FastValidationService(BaseComparisonService):
             tasks.append(task)
         
         try:
-            # Aggressive timeout - fail fast
+            # Reasonable timeout for parallel calls
             results = await asyncio.wait_for(
                 asyncio.gather(*tasks, return_exceptions=True),
-                timeout=3.0  # 3 seconds max for both calls
+                timeout=8.0  # 8 seconds max for both calls
             )
             
             successful_responses = []
@@ -240,7 +236,7 @@ class FastValidationService(BaseComparisonService):
             
             # Make single provider call with intelligent routing
             content = await self.ai_provider_manager._single_provider_call(
-                prompt, call_id, weight_kg=weight_kg, style=request.style, timeout=3.0
+                prompt, call_id, weight_kg=weight_kg, style=request.style, timeout=6.0
             )
             
             return content if content else ""

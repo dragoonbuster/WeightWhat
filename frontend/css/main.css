@@ -65,13 +65,28 @@ body::before {
 h1 {
     font-size: 2em;
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 15px;
     text-transform: uppercase;
     color: #ffff00;
     text-shadow: 
         2px 2px 0 #ff00ff,
         4px 4px 0 #00ffff;
     animation: rainbow 3s linear infinite;
+}
+
+.subtitle {
+    text-align: center;
+    font-size: 10px;
+    color: #00ff00;
+    margin-bottom: 30px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    animation: subtitleGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes subtitleGlow {
+    0% { text-shadow: 0 0 5px #00ff00; }
+    100% { text-shadow: 0 0 15px #00ff00, 0 0 20px #00ff00; }
 }
 
 @keyframes rainbow {
@@ -292,4 +307,69 @@ button:active {
     left: 20px;
     color: #ff0000;
     font-size: 14px;
+}
+
+/* Counter section */
+.counter-section {
+    margin-top: 40px;
+    padding: 20px;
+    background: #1a1a1a;
+    border: 3px solid #fff;
+    text-align: center;
+    position: relative;
+    box-shadow: 
+        3px 3px 0 #ffff00,
+        6px 6px 0 #ff00ff;
+}
+
+.counter-title {
+    font-size: 10px;
+    color: #ff00ff;
+    margin-bottom: 15px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.counter-display {
+    font-size: 32px;
+    color: #ffff00;
+    text-shadow: 
+        2px 2px 0 #ff00ff,
+        4px 4px 0 #00ffff;
+    margin: 20px 0;
+    animation: counterPulse 2s ease-in-out infinite;
+}
+
+@keyframes counterPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.counter-subtitle {
+    font-size: 8px;
+    color: #00ffff;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-top: 10px;
+    opacity: 0.8;
+}
+
+/* Counter animation when incremented */
+.counter-display.increment {
+    animation: counterIncrement 0.5s ease-out;
+}
+
+@keyframes counterIncrement {
+    0% { 
+        transform: scale(1); 
+        color: #ffff00; 
+    }
+    50% { 
+        transform: scale(1.5); 
+        color: #ff00ff; 
+    }
+    100% { 
+        transform: scale(1); 
+        color: #ffff00; 
+    }
 }
