@@ -107,6 +107,16 @@ class SimpleConfig:
             # Monitoring
             'metrics_enabled': self._get_env('SIZECOMPARATOR_METRICS_ENABLED', True, bool),
             'log_format': self._get_env('SIZECOMPARATOR_LOG_FORMAT', 'json', str),
+            
+            # Cost Management
+            'cost_tracking_enabled': self._get_env('SIZECOMPARATOR_COST_TRACKING_ENABLED', True, bool),
+            'daily_cost_limit': self._get_env('SIZECOMPARATOR_DAILY_COST_LIMIT', 10.0, float),
+            'monthly_cost_limit': self._get_env('SIZECOMPARATOR_MONTHLY_COST_LIMIT', 100.0, float),
+            'cost_alert_threshold': self._get_env('SIZECOMPARATOR_COST_ALERT_THRESHOLD', 0.8, float),
+            'cost_alert_email': self._get_env('SIZECOMPARATOR_COST_ALERT_EMAIL', None, str),
+            'max_parallel_calls': self._get_env('SIZECOMPARATOR_MAX_PARALLEL_CALLS', 2, int),
+            'rate_limit_per_minute': self._get_env('SIZECOMPARATOR_RATE_LIMIT_PER_MINUTE', 60, int),
+            'rate_limit_per_hour': self._get_env('SIZECOMPARATOR_RATE_LIMIT_PER_HOUR', 1000, int),
         })
         
         # Validate configuration

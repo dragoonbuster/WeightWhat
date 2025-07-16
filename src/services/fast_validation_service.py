@@ -36,9 +36,13 @@ class FastValidationService(BaseComparisonService):
         self.ai_provider_manager = AIProviderManager()
         self.fallback_data_manager = FallbackDataManager()
         
+        # Get config for cost management
+        from ...core.simple_config import get_config
+        config = get_config()
+        
         # Performance configuration
         self.fast_validation_enabled = True
-        self.parallel_calls = 2  # Reduced from 3
+        self.parallel_calls = config.get('max_parallel_calls', 2)  # Configurable
         self.max_call_timeout = 4000  # 4 seconds max per call
         self.validation_timeout = 2000  # 2 seconds for validation
         
