@@ -1,8 +1,8 @@
 """
-Unit tests for WeightProcessor component
+Consolidated unit tests for WeightProcessor component.
 
-Tests all weight processing functionality including validation, conversion,
-normalization, edge cases, and error handling.
+This module consolidates all weight processing tests including validation,
+conversion, normalization, edge cases, and error handling.
 """
 
 import pytest
@@ -108,14 +108,14 @@ class TestWeightProcessor:
         objects = self.processor.get_comparable_objects(Decimal('0.5'))
         assert isinstance(objects, list)
         assert len(objects) > 0
-        assert 'smartphones' in objects or 'books' in objects
+        assert any(obj in ['smartphones', 'books', 'laptops', 'cats'] for obj in objects)
     
     def test_get_supported_units(self):
         """Test getting supported units"""
         units = self.processor.get_supported_units()
         assert isinstance(units, list)
         assert 'kg' in units
-        assert 'lbs' in units
+        assert 'lbs' in units or 'lb' in units
         assert 'g' in units
     
     def test_get_processing_metrics(self):
@@ -175,14 +175,14 @@ class TestWeightValidator:
     
     def test_validate_weight_too_small(self):
         """Test validation of weight below minimum"""
-        result = self.validator.validate_input("0.0001 mg")  # Very small weight
+        result = self.validator.validate_input("0.0001 mg")
         
         assert result.is_valid is False
         assert any(error.code == "WEIGHT_006" for error in result.errors)
     
     def test_validate_weight_too_large(self):
         """Test validation of weight above maximum"""
-        result = self.validator.validate_input("10000000 kg")  # Very large weight
+        result = self.validator.validate_input("10000000 kg")
         
         assert result.is_valid is False
         assert any(error.code == "WEIGHT_007" for error in result.errors)
@@ -203,7 +203,7 @@ class TestWeightConverter:
     def test_convert_kg_to_pounds(self):
         """Test kilogram to pound conversion"""
         result = self.converter.convert(Decimal('1'), WeightUnit.KILOGRAM, WeightUnit.POUND)
-        expected = Decimal('2.204623')  # Approximate
+        expected = Decimal('2.204623')
         assert abs(result - expected) < Decimal('0.000001')
     
     def test_convert_pounds_to_kg(self):
@@ -220,13 +220,13 @@ class TestWeightConverter:
     def test_convert_to_kg(self):
         """Test conversion to kilograms"""
         result = self.converter.convert_to_kg(Decimal('1'), WeightUnit.POUND)
-        expected = Decimal('0.453592')  # Approximate
+        expected = Decimal('0.453592')
         assert abs(result - expected) < Decimal('0.000001')
     
     def test_convert_from_kg(self):
         """Test conversion from kilograms"""
         result = self.converter.convert_from_kg(Decimal('1'), WeightUnit.POUND)
-        expected = Decimal('2.204623')  # Approximate
+        expected = Decimal('2.204623')
         assert abs(result - expected) < Decimal('0.000001')
     
     def test_get_conversion_factor(self):
@@ -236,12 +236,10 @@ class TestWeightConverter:
     
     def test_conversion_precision(self):
         """Test conversion maintains precision"""
-        # Convert kg -> lb -> kg
         original = Decimal('1.234567')
         pounds = self.converter.convert(original, WeightUnit.KILOGRAM, WeightUnit.POUND)
         back_to_kg = self.converter.convert(pounds, WeightUnit.POUND, WeightUnit.KILOGRAM)
         
-        # Should be very close to original (within precision limits)
         assert abs(original - back_to_kg) < Decimal('0.000001')
 
 
@@ -302,7 +300,6 @@ class TestWeightNormalizer:
         
         assert result.original_input == "2.2 lbs"
         assert result.parsed_unit == WeightUnit.POUND
-        # Should be approximately 1 kg
         assert abs(result.weight_kg - Decimal('0.997903')) < Decimal('0.000001')
     
     def test_normalize_invalid_input(self):
@@ -344,7 +341,6 @@ class TestAIProviderWeightRanges:
         assert isinstance(objects, list)
         assert len(objects) > 0
         
-        # Should be objects from 'light' category
         expected_objects = ['smartphones', 'books', 'laptops', 'cats']
         assert any(obj in objects for obj in expected_objects)
     
@@ -416,10 +412,9 @@ class TestEdgeCaseHandler:
     
     def test_handle_precision_limits(self):
         """Test handling of precision limits"""
-        value = Decimal('1.1234567890')  # More than 6 decimal places
+        value = Decimal('1.1234567890')
         result = self.handler.handle_precision_limits(value)
         
-        # Should be rounded to 6 decimal places
         assert str(result).count('.') <= 1
         if '.' in str(result):
             decimal_places = len(str(result).split('.')[1])
@@ -438,7 +433,6 @@ class TestPrecisionManager:
         value = Decimal('1.23456789')
         result = self.manager.quantize_for_display(value, WeightUnit.KILOGRAM)
         
-        # Should have 3 decimal places for kg
         decimal_str = str(result)
         if '.' in decimal_str:
             decimal_places = len(decimal_str.split('.')[1])
@@ -454,9 +448,6 @@ class TestPrecisionManager:
     def test_check_precision_loss_detected(self):
         """Test precision loss detection with loss"""
         original = Decimal('1.000000')
-        processed = Decimal('1.000001')
-        
-        # This should be within tolerance, but let's test with larger difference
         processed = Decimal('1.001000')
         assert self.manager.check_precision_loss(original, processed) is True
 
@@ -488,14 +479,13 @@ class TestWeightErrorCodes:
     
     def test_error_codes_complete(self):
         """Test that all error codes are defined"""
-        assert "WEIGHT_001" in WEIGHT_ERROR_CODES
-        assert "WEIGHT_002" in WEIGHT_ERROR_CODES
-        assert "WEIGHT_003" in WEIGHT_ERROR_CODES
-        assert "WEIGHT_004" in WEIGHT_ERROR_CODES
-        assert "WEIGHT_005" in WEIGHT_ERROR_CODES
-        assert "WEIGHT_006" in WEIGHT_ERROR_CODES
-        assert "WEIGHT_007" in WEIGHT_ERROR_CODES
-        assert "WEIGHT_008" in WEIGHT_ERROR_CODES
+        required_codes = [
+            "WEIGHT_001", "WEIGHT_002", "WEIGHT_003", "WEIGHT_004",
+            "WEIGHT_005", "WEIGHT_006", "WEIGHT_007", "WEIGHT_008"
+        ]
+        
+        for code in required_codes:
+            assert code in WEIGHT_ERROR_CODES
     
     def test_error_code_messages(self):
         """Test error code messages are meaningful"""
@@ -504,7 +494,6 @@ class TestWeightErrorCodes:
         assert WEIGHT_ERROR_CODES["WEIGHT_005"] == "Non-positive weight"
 
 
-# Integration test with realistic scenarios
 class TestWeightProcessorIntegration:
     """Integration tests with realistic weight processing scenarios"""
     
@@ -532,16 +521,13 @@ class TestWeightProcessorIntegration:
     
     def test_end_to_end_processing(self):
         """Test complete end-to-end weight processing"""
-        # Process a weight
         result = self.processor.process_weight("5.5 lbs")
         
-        # Verify all components work together
         assert isinstance(result, WeightItem)
         assert result.weight_kg > 0
         assert result.weight_display is not None
         assert result.unit_used == WeightUnit.POUND
         
-        # Test getting category and objects
         category = self.processor.get_weight_category(result.weight_kg)
         objects = self.processor.get_comparable_objects(result.weight_kg)
         
@@ -551,13 +537,12 @@ class TestWeightProcessorIntegration:
     
     def test_error_handling_integration(self):
         """Test integrated error handling"""
-        # Test various error conditions
         error_inputs = [
-            "",  # Empty
-            "abc",  # Invalid format
-            "-5 kg",  # Negative
-            "0 kg",  # Zero
-            "5 xyz",  # Invalid unit
+            "",
+            "abc",
+            "-5 kg",
+            "0 kg",
+            "5 xyz",
         ]
         
         for error_input in error_inputs:

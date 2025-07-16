@@ -9,26 +9,19 @@
 </head>
 <body>
     <div class="container">
-        <h1>⚡ Fast Validated AI</h1>
+        <h1>Fast Validated AI</h1>
         <div class="subtitle">
-            <div class="speed-badge">⚡ &lt;2 Second Response Time</div>
             <br>
-            <span class="method-badge">🚀 Smart Validation</span>
-            <span class="method-badge">🎯 Rule-Based Filtering</span>
-            <span class="method-badge">⚡ Fast AI Selection</span>
+            <span class="method-badge">Smart Validation</span>
+            <span class="method-badge">Rule-Based Filtering</span>
+            <span class="method-badge">Fast AI Selection</span>
             <br><br>
             Optimized accuracy with lightning speed!
         </div>
         
-        <div class="fast-indicator">
-            <strong>⚡ Fast Validation Strategy:</strong><br>
-            • <strong>Common weights (1-100kg):</strong> 2 parallel calls + rule validation<br>
-            • <strong>Extreme weights:</strong> 3 calls + quick AI validation<br>
-            • <strong>Auto-fallback:</strong> Single call if needed for speed
-        </div>
         
         <div class="examples">
-            <strong>💡 Try these examples:</strong><br>
+            <strong>Try these examples:</strong><br>
             <span class="example-item" onclick="setWeight('75 kg')">75 kg</span>
             <span class="example-item" onclick="setWeight('25 pounds')">25 pounds</span>
             <span class="example-item" onclick="setWeight('500 grams')">500 grams</span>
@@ -44,21 +37,20 @@
         <div class="input-group">
             <label for="style">Comparison Style:</label>
             <select id="style">
-                <option value="default">🎯 Default - Quick & accurate</option>
-                <option value="creative">🎨 Creative - More detailed</option>
-                <option value="technical">⚗️ Technical - Precise</option>
+                <option value="default">Default - Quick & accurate</option>
+                <option value="creative">Creative - More detailed</option>
+                <option value="technical">Technical - Precise</option>
             </select>
         </div>
         
         <div class="comparison-buttons">
-            <button onclick="compareWeight('fast')" id="fastBtn">⚡ Fast Validated (&lt;2s)</button>
-            <button onclick="compareWeight('single')" id="singleBtn">🚀 Single Call (&lt;3s)</button>
+            <button onclick="compareWeight('fast')" id="fastBtn">Fast Validated</button>
         </div>
         
         <div id="result"></div>
     </div>
 
-    <script src="js/api-client.js"></script>
-    <script src="js/app.js"></script>
+    <script src="js/api-client.js?v=3"></script>
+    <script src="js/app.js?v=3"></script>
 </body>
 </html>

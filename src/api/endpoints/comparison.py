@@ -21,7 +21,7 @@ from ...models.responses import WeightComparisonResponse, ProviderSelectionRespo
 from ...models.errors import ErrorCategory, ErrorSeverity
 from ...models.weight import ProcessedWeight, WeightProcessor
 from ...services.comparison.comparison_service import ComparisonService
-from ...core.config import ConfigLoader
+from ...core.simple_config import SimpleConfig
 from ..main import (
     get_comparison_service,
     get_weight_processor,
@@ -96,7 +96,7 @@ async def compare_weights(
     weight_processor: WeightProcessor = Depends(get_weight_processor),
     cache_service = Depends(get_cache_service),
     metrics_service = Depends(get_metrics_service),
-    config_service: ConfigLoader = Depends(get_config_service)
+    config_service: SimpleConfig = Depends(get_config_service)
 ) -> WeightComparisonResponse:
     """
     Compare two items by weight with AI-generated visualizations.

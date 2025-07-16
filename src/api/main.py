@@ -20,20 +20,13 @@ from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from ..core.config import ConfigLoader
-from ..core.environment import EnvManager
-from ..models.config import ApplicationConfig
+from ..core.simple_config import get_config, SimpleConfig
 from ..models.errors import ErrorCategory, ErrorSeverity
 from ..services.comparison.comparison_service import ComparisonService, create_comparison_service
 from ..services.weight_processor import WeightProcessor
-from ..providers.factory import AIProviderFactory
-from ..services.cache.redis_cache import RedisCacheService
-from ..services.cache.memory_cache import MemoryCacheService
-
-# Import endpoints
-from .endpoints.comparison import comparison_router
-from .endpoints.health import health_router
-from .endpoints.metrics import metrics_router
+from ..providers.factory import ProviderFactory
+from ..services.cache.redis_cache import RedisCache
+from ..services.cache.memory_cache import MemoryCache
 
 # Import middleware
 from .middleware.request_id import RequestIDMiddleware
@@ -120,8 +113,7 @@ async def lifespan(app: FastAPI):
 async def initialize_services():
     """Initialize all application services"""
     # Initialize configuration
-    env_manager = EnvManager()
-    config_loader = ConfigLoader(env_manager)
+    config_loader = get_config()
     app_state["config_service"] = config_loader
     
     # Initialize metrics
@@ -129,16 +121,16 @@ async def initialize_services():
     app_state["metrics_service"] = metrics_service
     
     # Initialize cache service
-    cache_config = config_loader.get_section("cache", {})
+    cache_config = config_loader.get_cache_config()
     if cache_config.get("provider") == "redis":
-        cache_service = RedisCacheService(
+        cache_service = RedisCache(
             host=cache_config.get("host", "localhost"),
             port=cache_config.get("port", 6379),
             db=cache_config.get("db", 0),
             password=cache_config.get("password")
         )
     else:
-        cache_service = MemoryCacheService(
+        cache_service = MemoryCache(
             max_size=cache_config.get("max_size", 1000),
             default_ttl=cache_config.get("default_ttl", 3600)
         )
@@ -151,8 +143,7 @@ async def initialize_services():
     app_state["weight_processor"] = weight_processor
     
     # Initialize AI provider factory
-    ai_provider_factory = AIProviderFactory(config_loader)
-    await ai_provider_factory.initialize()
+    ai_provider_factory = ProviderFactory()
     app_state["ai_provider_factory"] = ai_provider_factory
     
     # Initialize comparison service
@@ -189,7 +180,7 @@ async def perform_startup_health_check() -> Dict[str, Any]:
     # Check AI providers
     try:
         if app_state["ai_provider_factory"]:
-            providers = await app_state["ai_provider_factory"].get_available_providers()
+            providers = app_state["ai_provider_factory"].registry.list_providers()
             checks["ai_providers"] = len(providers) > 0
         else:
             checks["ai_providers"] = False
@@ -215,22 +206,21 @@ async def cleanup_services():
         
         # Cleanup AI providers
         if app_state["ai_provider_factory"]:
-            await app_state["ai_provider_factory"].cleanup()
+            await app_state["ai_provider_factory"].shutdown_all()
             
     except Exception as e:
         logger.error(f"Error during service cleanup: {e}")
 
 
-def create_app(config_loader: Optional[ConfigLoader] = None) -> FastAPI:
+def create_app(config_loader: Optional[SimpleConfig] = None) -> FastAPI:
     """Create and configure FastAPI application"""
     
     # Use provided config or create new one
     if config_loader is None:
-        env_manager = EnvManager()
-        config_loader = ConfigLoader(env_manager)
+        config_loader = get_config()
     
-    app_config = config_loader.get_section("application", {})
-    api_config = config_loader.get_section("api", {})
+    app_config = config_loader.get_all()
+    api_config = config_loader.get_api_config()
     
     # Create FastAPI app
     app = FastAPI(
@@ -258,7 +248,7 @@ def create_app(config_loader: Optional[ConfigLoader] = None) -> FastAPI:
     return app
 
 
-def setup_middleware(app: FastAPI, config_loader: ConfigLoader):
+def setup_middleware(app: FastAPI, config_loader: SimpleConfig):
     """Setup middleware in correct order"""
     
     # 1. CORS middleware (first to handle preflight requests)
@@ -283,6 +273,11 @@ def setup_dependencies(app: FastAPI):
 
 def setup_routes(app: FastAPI):
     """Setup API routes"""
+    
+    # Import routers here to avoid circular imports
+    from .endpoints.comparison import comparison_router
+    from .endpoints.health import health_router
+    from .endpoints.metrics import metrics_router
     
     # Health endpoints (no prefix)
     app.include_router(health_router, prefix="", tags=["health"])
@@ -369,14 +364,13 @@ if __name__ == "__main__":
     import uvicorn
     
     # Load configuration
-    env_manager = EnvManager()
-    config_loader = ConfigLoader(env_manager)
+    config_loader = get_config()
     
     # Create application
     app = create_app(config_loader)
     
     # Get server configuration
-    server_config = config_loader.get_section("server", {})
+    server_config = config_loader.get_api_config()
     
     # Run server
     uvicorn.run(

@@ -6,9 +6,9 @@ import time
 import uuid
 from typing import Optional, Dict, Any
 
-from models.mvp import MVPComparisonRequest, MVPComparisonResponse, MVPErrorResponse
-from services.weight_processor import WeightProcessor
-from services.shared.interfaces import BaseComparisonService
+from ..models.mvp import MVPComparisonRequest, MVPComparisonResponse, MVPErrorResponse
+from .weight_processor import WeightProcessor
+from .shared.interfaces import BaseComparisonService
 
 
 class MVPComparisonService(BaseComparisonService):

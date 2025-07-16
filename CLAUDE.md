@@ -1,6 +1,6 @@
 # SizeComparator - AI Assistant Context
 
-Last Updated: 2025-07-13
+Last Updated: 2025-07-14
 
 ## Project Overview
 
@@ -12,48 +12,84 @@ SizeComparator is a lightweight web application that converts weight inputs (lbs
 - **Zero Dependencies** - Vanilla frontend with minimal backend for easy deployment
 - **Robust Fallbacks** - Graceful degradation when AI providers fail
 
-## Current Implementation Status (2025-07-13)
+## Current Implementation Status (2025-07-14)
 
-### Completed Features
-- **System Architecture Design**
-  - Lightweight FastAPI backend with async AI provider management
-  - Vanilla HTML/CSS/JS frontend with no build dependencies
-  - Provider abstraction pattern for pluggable AI services
-  - Configuration-driven prompt templates and validation rules
+### Completed Features ✅
+- **Unified API Architecture**
+  - Complete FastAPI backend with unified `/api/compare` endpoint
+  - Intelligent service routing with ComparisonServiceFactory
+  - Multiple service modes: basic, fast_validation, full_validation, comprehensive
+  - Backward compatibility with legacy endpoints
+  - Static file serving for frontend assets
 
-- **Specification Documents**
-  - Complete 10-page system specification with implementation details
-  - Optimized prompt template for specification generation
-  - Development workflow documentation for parallel implementation
-  - Error handling and fallback strategies documented
+- **AI Provider Integration**
+  - OpenAI provider with GPT-4 support
+  - Anthropic provider with Claude integration
+  - X.ai provider with Grok model support
+  - Shared AI provider manager with fallback logic
+  - Fast validation service optimized for <2s response times
 
-- **AI Integration Framework**
-  - Abstract provider interface supporting OpenAI, Anthropic, X.ai
-  - Circuit breaker pattern for provider health management
-  - Retry logic with exponential backoff and automatic failover
-  - Response validation ensuring exactly 2 quality comparisons
+- **Service Architecture**
+  - BaseComparisonService interface for all services
+  - MVPComparisonService for basic fallback comparisons
+  - FastValidationService for speed-optimized AI validation
+  - AIValidationService for comprehensive AI validation
+  - ComparisonServiceFactory for intelligent service selection
 
-- **Frontend Design**
-  - Responsive single-page design with CSS Grid layout
-  - Light/dark theme system with localStorage persistence
-  - Progressive enhancement for optimal user experience
-  - Mobile-first responsive design approach
+- **Configuration System**
+  - Environment-based configuration with SimpleConfig
+  - Comprehensive environment variable management
+  - AI provider configuration with secure key handling
+  - Service selection strategies and performance tuning
 
-- **Backend API Architecture**
-  - RESTful API with comprehensive error handling
-  - Input validation and unit conversion (lbs/kg)
-  - Structured logging with request ID tracking
-  - Health check endpoints for monitoring
+- **Frontend Application**
+  - Single-page application with vanilla HTML/CSS/JS
+  - Fast validation demo interface
+  - API client with error handling
+  - Example weight inputs and comparison styles
+  - Real-time response time monitoring
 
-### In Progress
-- Core backend implementation (FastAPI application)
-- AI provider implementations (OpenAI, Anthropic, X.ai)
-- Frontend UI components and theme system
-- Configuration management system (75% complete)
+- **Weight Processing System**
+  - Comprehensive weight input parsing and validation
+  - Support for multiple units (kg, lbs, grams, tons, oz)
+  - Weight range validation and normalization
+  - Clean display formatting for AI consumption
 
-### Planned (Not Started)
-- Integration testing with mock AI providers
-- Production deployment configuration and Docker setup
+- **Cache System**
+  - Memory-based caching with TTL support
+  - Redis cache integration ready
+  - Cache key generation and serialization
+  - Cache decorators for service methods
+
+- **Fallback Data System**
+  - Comprehensive fallback comparison objects
+  - Weight-based object categorization
+  - Reasonableness validation for AI responses
+  - Fallback text generation for service failures
+
+### Production Ready ✅
+- **Docker Support**
+  - Complete Dockerfile and docker-compose.yml
+  - Development and production configurations
+  - Environment variable management
+
+- **Testing Framework**
+  - Unit tests for core components
+  - Integration tests for API endpoints
+  - Provider-specific testing utilities
+  - Service factory testing
+
+- **Monitoring and Health**
+  - Health check endpoints for all services
+  - Service availability monitoring
+  - Performance metrics collection
+  - Request tracking and error monitoring
+
+### Minor Improvements Needed
+- Enhanced error message localization
+- Theme system completion (dark/light modes)
+- Advanced caching strategies
+- Performance optimization for extreme weights
 
 ### Known Issues
 - AI provider rate limiting needs exponential backoff refinement
@@ -61,37 +97,43 @@ SizeComparator is a lightweight web application that converts weight inputs (lbs
 - Theme toggle animation could be smoother
 - Error message localization not yet implemented
 
-## Recent Changes (2025-07-13)
+## Recent Changes (2025-07-14)
 
-1. **Architecture Specification**
-   - Created comprehensive 10-page system specification
-   - Defined provider abstraction pattern for AI integration
-   - Documented fallback strategies for AI provider failures
-   - Established parallel development workflow
+1. **Unified API Implementation**
+   - Implemented unified `/api/compare` endpoint with service mode selection
+   - Created ComparisonServiceFactory for intelligent service routing
+   - Added support for query parameters and headers for service selection
+   - Implemented backward compatibility with legacy endpoints
 
-2. **Development Framework**
-   - Implemented specification generation prompt optimization
-   - Created development guidelines following senior dev + PM methodology
-   - Established parallel task execution patterns
-   - Defined code quality standards and security requirements
+2. **FastValidationService Optimization**
+   - Optimized for <2 second response times
+   - Implemented parallel AI calls with rule-based validation
+   - Added smart weight categorization (common vs extreme weights)
+   - Built fallback strategies for timeout and error scenarios
 
-3. **AI Integration Design**
-   - Designed provider interface with health monitoring
-   - Created circuit breaker pattern for reliability
-   - Established prompt template system for configuration-driven behavior
-   - Defined response validation framework
+3. **Configuration System Consolidation**
+   - Simplified configuration to use SimpleConfig over complex file-based system
+   - Retained environment variable management for sensitive data
+   - Streamlined service factory configuration
+   - Removed unnecessary configuration complexity
 
-4. **Bug Prevention Strategy**
-   - Comprehensive error handling across all system layers
-   - Input validation with specific error messages
-   - Graceful degradation for AI service failures
-   - Type hints throughout codebase for early error detection
+4. **Service Architecture Cleanup**
+   - Established clear BaseComparisonService interface
+   - Implemented shared components (AI provider manager, fallback data)
+   - Created service factory with intelligent selection logic
+   - Unified error handling across all services
 
-5. **Development Optimization (100% Complete)**
-   - Parallel development strategy for efficient team coordination
-   - Template-driven specification generation
-   - Minimal dependency approach for maintainability
-   - Configuration-driven behavior for easy updates
+5. **Frontend Integration**
+   - Built complete frontend application with API integration
+   - Implemented fast validation demo interface
+   - Added real-time performance monitoring
+   - Created user-friendly error handling and loading states
+
+6. **Production Readiness**
+   - Added comprehensive Docker support
+   - Implemented health check endpoints
+   - Created startup scripts and server management
+   - Added monitoring and metrics collection
 
 ## Development Guidelines
 
@@ -115,11 +157,39 @@ SizeComparator is a lightweight web application that converts weight inputs (lbs
    git pull origin main
    ```
 
-3. **Make Your Changes**
+3. **Set Up Environment Variables**
+   ```bash
+   # Copy example file and edit with your API keys
+   cp .env.example .env
+   # Edit .env file with your API keys
+   ```
+
+4. **Test Configuration**
+   ```bash
+   # Test that configuration loads correctly
+   python -c "from src.core.simple_config import get_config; print('Config loaded successfully')"
+   ```
+
+5. **Start Development Server**
+   ```bash
+   # Recommended: Use unified server startup script
+   python run_unified_server.py
+   ```
+
+6. **Make Your Changes**
    - Edit code, add features, fix bugs
    - Test your changes thoroughly
+   - Use the frontend at http://localhost:8000
 
-4. **Commit After Every Change (MANDATORY)**
+7. **Test Your Changes**
+   ```bash
+   # Test specific components
+   python test_service_factory.py
+   python test_fast_validation.py
+   python test_unified_app.py
+   ```
+
+8. **Commit After Every Change (MANDATORY)**
    ```bash
    # Add your changes
    git add .
@@ -192,62 +262,139 @@ make lint
 
 ### Common Development Tasks
 
-#### Start Development Server
+#### Start Unified Development Server
 ```bash
-uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
+# Recommended - use unified server startup script
+python run_unified_server.py
+
+# Alternative - direct uvicorn command
+uvicorn src.api.unified_app:create_unified_app --reload --host 0.0.0.0 --port 8000
 ```
 
-#### Run Frontend Development Server
+#### Test Individual Services
 ```bash
-python -m http.server 3000 --directory frontend/
+# Test service factory
+python test_service_factory.py
+
+# Test fast validation
+python test_fast_validation.py
+
+# Test unified API
+python test_unified_app.py
 ```
 
-#### Test AI Provider Integration
+#### Run Individual Service Tests
 ```bash
-python scripts/test_providers.py --provider openai
+# Test MVP service
+python test_mvp.py
+
+# Test integration
+python test_integration.py
+
+# Test validation service
+python test_validation.py
 ```
 
 ## Technical Details
 
+### Unified API Architecture
+- **Endpoint**: Single `/api/compare` endpoint with service mode selection
+- **Service Modes**: basic, fast_validation, full_validation, comprehensive
+- **Routing**: Intelligent service factory selects optimal service based on:
+  - Query parameters (`?service_mode=fast_validation`)
+  - Headers (`X-Service-Mode`, `X-Performance-Profile`)
+  - Request characteristics (weight, timeout, accuracy requirements)
+  - Environment configuration and AI provider availability
+
+### Service Selection Strategy
+- **Basic Service**: Always available fallback with static comparisons
+- **Fast Validation**: <2s response time with parallel AI calls + rule validation
+- **Full Validation**: Comprehensive AI validation with quality checks
+- **Comprehensive**: Most thorough analysis with multiple validation rounds
+
 ### AI Provider Integration
-- **Issue**: Multiple AI providers with different response formats and reliability
-- **Solution**: Provider abstraction with standardized interface and circuit breaker pattern
-- See SIZECOMPARATOR_SYSTEM_SPEC.md Section 3 for detailed information
+- **OpenAI**: GPT-4 with optimized prompts for weight comparisons
+- **Anthropic**: Claude with detailed reasoning capabilities
+- **X.ai**: Grok for creative and technical comparisons
+- **Shared Manager**: Unified prompt building, response validation, and fallback
+- **Circuit Breaker**: Automatic failover when providers are unavailable
 
-### Weight Conversion Logic
-- Supports lbs and kg with automatic conversion
-- Validates input ranges (0.1 to 1,000,000 units)
-- Normalizes precision to 2 decimal places
-- Handles edge cases like very small or very large weights
+### Weight Processing System
+- **Supported Units**: kg, lbs, grams, tons, ounces with automatic conversion
+- **Input Parsing**: Flexible parsing handles "5 kg", "10 pounds", "500g", etc.
+- **Range Validation**: 0.001g to 1,000,000kg with appropriate error messages
+- **Display Formatting**: Clean formatting prevents AI misinterpretation
 
-### Authentication Flow
-1. No user authentication required (public API)
-2. Rate limiting per client IP address
-3. API key management for AI providers via environment variables
-4. Secure configuration loading with validation
-5. No sensitive data exposure in responses or logs
+### Fast Validation Optimization
+- **Common Weights (1-100kg)**: 2 parallel calls + rule-based validation
+- **Extreme Weights**: 3 calls + quick AI validation for accuracy
+- **Timeout Strategy**: Aggressive 3-second timeout with fallback
+- **Rule Validation**: Pre-filters obviously wrong responses
+
+### Configuration System
+- **SimpleConfig**: Environment variable-based configuration
+- **AI Provider Keys**: Secure handling of SIZECOMPARATOR_*_API_KEY variables
+- **Service Selection**: Configurable strategies and fallback behavior
+- **Environment Awareness**: Development vs production behavior
+
+### Authentication and Security
+1. Public API - no user authentication required
+2. API keys stored securely in environment variables
+3. Sensitive data masking in logs and responses
+4. Rate limiting and timeout protection
+5. Input validation and sanitization
 
 ## Project Structure (Current)
 ```
 SizeComparator/
 ├── src/
-│   ├── api/                # FastAPI routes and middleware
-│   ├── core/               # Business logic and weight processing
-│   ├── providers/          # AI provider implementations
-│   ├── models/             # Pydantic models and schemas
-│   ├── services/           # AI orchestration and response validation
-│   │   ├── ai_manager.py   # Provider coordination and fallback
-│   │   └── validator.py    # Response quality validation
-│   └── main.py             # FastAPI application entry point
-├── frontend/               # Static HTML/CSS/JS files
-│   ├── css/                # Stylesheets with theme system
-│   ├── js/                 # JavaScript modules and API client
-│   └── index.html          # Single page application
-├── config/                 # Configuration files and templates
-├── tests/                  # Test suite
-├── docs/                   # Technical documentation
-├── scripts/                # Utility scripts
-└── requirements.txt        # Python dependencies
+│   ├── api/                     # FastAPI application and routes
+│   │   ├── unified_app.py       # Main unified API application
+│   │   ├── endpoints/           # API endpoint modules
+│   │   └── middleware/          # Request middleware
+│   ├── core/                    # Core utilities and configuration
+│   │   ├── simple_config.py     # Simplified configuration system
+│   │   ├── circuit_breaker.py   # Circuit breaker pattern
+│   │   └── exceptions.py        # Custom exception classes
+│   ├── providers/               # AI provider implementations
+│   │   ├── openai_provider.py   # OpenAI GPT-4 integration
+│   │   ├── anthropic_provider.py # Anthropic Claude integration
+│   │   ├── xai_provider.py      # X.ai Grok integration
+│   │   └── factory.py           # Provider factory
+│   ├── models/                  # Pydantic models and schemas
+│   │   ├── mvp.py              # MVP request/response models
+│   │   ├── requests.py         # Request models
+│   │   ├── responses.py        # Response models
+│   │   └── weight.py           # Weight processing models
+│   ├── services/                # Comparison services
+│   │   ├── shared/              # Shared service components
+│   │   │   ├── service_factory.py    # Service selection factory
+│   │   │   ├── ai_provider_manager.py # AI provider coordination
+│   │   │   ├── fallback_data.py      # Fallback comparison data
+│   │   │   └── interfaces.py         # Service interfaces
+│   │   ├── cache/               # Caching system
+│   │   │   ├── memory_cache.py  # In-memory cache
+│   │   │   └── redis_cache.py   # Redis cache integration
+│   │   ├── mvp_comparison.py    # Basic fallback service
+│   │   ├── fast_validation_service.py # Fast AI validation
+│   │   ├── ai_validation_service.py   # Full AI validation
+│   │   └── weight_processor.py       # Weight parsing and validation
+│   └── main.py                  # Application entry point
+├── frontend/                    # Static web application
+│   ├── index.html              # Main application page
+│   ├── css/                    # Stylesheets
+│   │   ├── base.css           # Base styling
+│   │   └── components.css     # Component styles
+│   └── js/                     # JavaScript modules
+│       ├── api-client.js      # API client
+│       └── app.js             # Main application logic
+├── tests/                      # Test suite
+├── docs/                       # Technical documentation
+├── docker/                     # Docker configurations
+├── run_unified_server.py       # Unified server startup script
+├── Dockerfile                  # Production Docker image
+├── docker-compose.yml          # Development environment
+└── requirements.txt            # Python dependencies
 ```
 
 ## Refactoring Plans
@@ -277,30 +424,50 @@ SizeComparator/
 2. **ALWAYS Commit After Changes**: Use the mandatory git commit template
 3. **Simplicity First**: Always choose the simplest solution that meets requirements
 4. **AI Provider Reliability**: Assume AI providers will fail and design accordingly
-5. **Configuration Over Code**: Prefer file-based configuration for behavior changes
-6. **Performance Matters**: Target sub-2 second response times for user requests
+5. **Configuration Over Code**: Use environment variables for behavior changes
+6. **Performance Matters**: Target sub-2 second response times for fast validation service
+7. **Test Unified API**: Use `/api/compare` endpoint for all new features
+8. **Service Factory First**: Use ComparisonServiceFactory for service creation
+9. **Document Changes**: Update API documentation when adding new features
 
 ### Common Pitfalls:
 - Assuming AI providers always return valid responses
-- Hardcoding prompt templates instead of using configuration
+- Hardcoding service selection instead of using service factory
 - Adding complex dependencies when simple solutions exist
 - Not handling edge cases in weight conversion
 - Creating files without planning the overall structure
+- Not testing service fallback behavior
+- Ignoring service availability in production
+- Not using unified API endpoint consistently
 
-### Testing Credentials:
-- Copy .env.example to .env and add your API keys:
-  - SIZECOMPARATOR_OPENAI_API_KEY=your_openai_key
-  - SIZECOMPARATOR_ANTHROPIC_API_KEY=your_anthropic_key  
-  - SIZECOMPARATOR_XAI_API_KEY=your_xai_key
-- Never commit .env file to git (already in .gitignore)
+### Environment Configuration:
+- **Required**: At least one AI provider API key
+- **Setup**: Copy .env.example to .env and add your API keys:
+  ```bash
+  SIZECOMPARATOR_OPENAI_API_KEY=sk-your-openai-key-here
+  SIZECOMPARATOR_ANTHROPIC_API_KEY=sk-ant-your-anthropic-key-here
+  SIZECOMPARATOR_XAI_API_KEY=xai-your-xai-key-here
+  ```
+- **Optional**: Additional configuration (see docs/CONFIGURATION_GUIDE.md)
+- **Security**: Never commit .env file to git (already in .gitignore)
+- **Testing**: Use basic service mode if no AI providers available
+
+### IMPORTANT: API Key Loading
+- The application now automatically loads .env files on startup (added to run_unified_server.py)
+- If python-dotenv is not installed, the server will prompt to install it
+- API keys MUST be prefixed with SIZECOMPARATOR_ to be recognized
+- The system will warn "No AI provider API keys configured" if no keys are found
+- Without API keys, the system uses fallback responses instead of AI-generated ones
 
 ## Next Major Milestones
 
-1. **Core Implementation**: Complete FastAPI backend with AI provider integration
-2. **Frontend Development**: Implement responsive UI with theme system
-3. **Integration Testing**: Comprehensive testing with real AI providers
-4. **Performance Optimization**: Achieve sub-2 second response time targets
-5. **Production Deployment**: Containerized deployment with monitoring
+1. **Enhanced Frontend**: Complete theme system (dark/light modes) and responsive design
+2. **Advanced Caching**: Implement Redis caching for production performance
+3. **Monitoring Integration**: Add comprehensive metrics and monitoring dashboard
+4. **Load Testing**: Validate performance under concurrent load
+5. **Documentation**: Complete API documentation and user guides
+6. **Mobile Optimization**: Enhance mobile user experience
+7. **Advanced Features**: Implement comparison history and favorites
 
 ## Remember
 - **Keep It Simple** - Avoid over-engineering solutions
@@ -342,10 +509,17 @@ Skip TodoWrite for:
 - Read configuration files before attempting to edit them
 - Use absolute paths for all file operations
 - Plan AI provider integration before implementation
+- Use BaseComparisonService interface for all new services
+- Follow established patterns in shared components
+- Update service factory when adding new services
 
 ### Testing and Validation
 - Test AI provider integration with actual API calls when possible
 - Verify weight conversion logic with edge cases
-- Check theme system across different browsers
+- Test unified API endpoint with all service modes
+- Test service factory selection logic with various inputs
 - Ensure error handling covers all AI provider failure modes
+- Test fallback behavior when AI providers unavailable
+- Verify service availability checking works correctly
+- Test frontend integration with unified API
 - Document any breaking changes in AI provider interfaces

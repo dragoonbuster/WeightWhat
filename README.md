@@ -1,8 +1,8 @@
 # SizeComparator
 
-A lightweight web application that converts weight inputs into relatable object comparisons using AI providers. Enter a weight in lbs or kg and receive two AI-generated comparisons to help visualize and understand the measurement.
+A fast, intelligent weight comparison API that converts weight inputs into relatable object comparisons using AI providers with intelligent service routing and sub-2 second response times.
 
-**Example**: "24 lbs" → "Four medium chickens (6 lbs each)" + "One car tire (24 lbs total)"
+**Example**: "5 kg" → "5 kg is about the weight of a house cat or a bag of flour."
 
 ## Quick Start
 
@@ -10,16 +10,20 @@ A lightweight web application that converts weight inputs into relatable object 
 # Clone and setup
 git clone <repository-url>
 cd SizeComparator
-
-# Install dependencies
+source venv/bin/activate
 pip install -r requirements.txt
 
-# Configure AI providers
+# Configure API keys (at least one required)
 cp .env.example .env
-# Edit .env with your API keys
+# Edit .env with your AI provider API keys
 
-# Run the application
-uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
+# Start unified server
+python run_unified_server.py
+
+# Test API
+curl -X POST http://localhost:8000/api/compare \
+  -H "Content-Type: application/json" \
+  -d '{"weight_input": "5 kg"}'
 
 # Open browser to http://localhost:8000
 ```
@@ -28,10 +32,10 @@ uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
 
 ### Prerequisites
 
-- Python 3.11 or higher
+- Python 3.8 or higher
 - pip (Python package installer)
 - Git
-- API keys for AI providers (OpenAI, Anthropic, X.ai)
+- At least one AI provider API key (OpenAI, Anthropic, or X.ai)
 
 ### Detailed Installation Steps
 
@@ -41,9 +45,8 @@ uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
    cd SizeComparator
    ```
 
-2. **Create a virtual environment** (recommended)
+2. **Activate virtual environment** (should already exist)
    ```bash
-   python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
@@ -56,405 +59,313 @@ uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
    ```bash
    cp .env.example .env
    # Edit .env with your AI provider API keys:
-   # OPENAI_API_KEY=your_openai_key
-   # ANTHROPIC_API_KEY=your_anthropic_key
-   # XAI_API_KEY=your_xai_key
+   # SIZECOMPARATOR_OPENAI_API_KEY=sk-your-openai-key-here
+   # SIZECOMPARATOR_ANTHROPIC_API_KEY=sk-ant-your-anthropic-key-here
+   # SIZECOMPARATOR_XAI_API_KEY=xai-your-xai-key-here
    ```
 
-5. **Run the application**
+5. **Run the unified server**
    ```bash
-   uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
+   python run_unified_server.py
    ```
+
+## Features
+
+- **Unified API**: Single `/api/compare` endpoint with intelligent service routing
+- **Multiple AI Providers**: OpenAI GPT-4, Anthropic Claude, X.ai Grok
+- **Service Modes**: Basic, Fast Validation (<2s), Full Validation, Comprehensive
+- **Weight Support**: kg, lbs, grams, tons, ounces with automatic conversion
+- **Fallback System**: Graceful degradation when AI providers unavailable
+- **Fast Validation**: Optimized for sub-2 second response times
+- **Frontend Demo**: Interactive web interface at http://localhost:8000
+
+## Service Modes
+
+- **Basic**: Static comparisons, always available (~500ms)
+- **Fast Validation**: AI-powered with <2s target (~1800ms)
+- **Full Validation**: Comprehensive AI validation (~4000ms)
+- **Comprehensive**: Most thorough analysis (~6000ms)
 
 ## Project Structure
 
 ```
 SizeComparator/
-├── src/                    # Source code
-│   ├── api/               # FastAPI routes and middleware
-│   ├── core/              # Business logic and weight processing
-│   ├── providers/         # AI provider implementations
-│   ├── models/            # Pydantic models and schemas
-│   ├── services/          # AI orchestration and validation
-│   └── main.py           # Application entry point
-├── frontend/              # Static frontend files
-│   ├── css/              # Stylesheets with theme system
-│   ├── js/               # JavaScript modules
-│   └── index.html        # Single page application
-├── config/                # Configuration files and templates
-├── tests/                 # Test suite
-│   ├── unit/             # Unit tests
-│   ├── integration/      # Integration tests
-│   └── fixtures/         # Test data
-├── docs/                  # Documentation
-│   ├── SIZECOMPARATOR_SYSTEM_SPEC.md
-│   └── api/              # API documentation
-├── scripts/              # Utility scripts
-├── requirements.txt      # Python dependencies
-├── .env.example         # Environment variables template
-├── CLAUDE.md            # AI assistant context
-└── README.md            # This file
+├── src/
+│   ├── api/unified_app.py          # Main unified API application
+│   ├── services/
+│   │   ├── shared/service_factory.py  # Intelligent service selection
+│   │   ├── fast_validation_service.py # Fast AI validation
+│   │   └── mvp_comparison.py          # Basic fallback service
+│   ├── providers/                  # AI provider implementations
+│   ├── core/simple_config.py       # Configuration system
+│   └── models/                     # Data models
+├── frontend/                       # Web interface
+├── docs/                          # Documentation
+├── run_unified_server.py          # Server startup script
+└── requirements.txt               # Dependencies
 ```
 
-## Development Workflow
+## API Usage
 
-### Setting Up Development Environment
+### Basic Request
+```bash
+curl -X POST http://localhost:8000/api/compare \
+  -H "Content-Type: application/json" \
+  -d '{"weight_input": "25 pounds", "style": "creative"}'
+```
 
-1. Follow the installation steps above
-2. Install development dependencies:
-   ```bash
-   pip install -r requirements-dev.txt
-   ```
+### Service Mode Selection
+```bash
+# Query parameter
+curl -X POST http://localhost:8000/api/compare?service_mode=fast_validation \
+  -H "Content-Type: application/json" \
+  -d '{"weight_input": "5 kg"}'
 
-### Code Style and Standards
+# Header
+curl -X POST http://localhost:8000/api/compare \
+  -H "Content-Type: application/json" \
+  -H "X-Service-Mode: comprehensive" \
+  -d '{"weight_input": "500 grams"}'
+```
 
-- Follow PEP 8 for Python code
-- Use type hints throughout the codebase
-- Write self-documenting code with minimal comments
-- No emojis or symbols in code, comments, or commit messages
-- Prefer configuration over hardcoded values
+### Response Example
+```json
+{
+  "comparison_text": "5 kg is about the weight of a house cat or a bag of flour.",
+  "weight_processed": "5 kg",
+  "provider_used": "fast_validated_rule_based_2_calls",
+  "response_time_ms": 1250,
+  "cached": false,
+  "request_id": "abc123ef"
+}
+```
 
-### Parallel Development Pattern
+## Environment Configuration
 
-This project uses a parallel development approach for efficient implementation:
+### Required Variables
+```bash
+# At least one AI provider API key
+SIZECOMPARATOR_OPENAI_API_KEY=sk-your-openai-key-here
+SIZECOMPARATOR_ANTHROPIC_API_KEY=sk-ant-your-anthropic-key-here
+SIZECOMPARATOR_XAI_API_KEY=xai-your-xai-key-here
+```
 
-1. **Foundation Phase (Parallel Development)**
-   - Frontend UI components (Developer A)
-   - AI provider implementations (Developer B)
-   - Core backend logic (Developer C)
+### Optional Configuration
+```bash
+# Environment
+SIZECOMPARATOR_ENV=development
+SIZECOMPARATOR_DEBUG=true
+SIZECOMPARATOR_LOG_LEVEL=debug
 
-2. **Integration Phase (Sequential)**
-   - API endpoint integration and testing
-   - End-to-end user workflow validation
-   - Error handling verification across components
+# API Server
+SIZECOMPARATOR_API_HOST=127.0.0.1
+SIZECOMPARATOR_API_PORT=8000
 
-3. **Polish Phase (Parallel)**
-   - Performance optimization and monitoring
-   - Documentation and testing
-   - Deployment and infrastructure
+# Service Factory
+SIZECOMPARATOR_SERVICE_STRATEGY=smart_routing
+SIZECOMPARATOR_FORCE_BASIC_SERVICE=false
 
-### AI Provider Development
-
-When adding new AI providers:
-
-1. **Create provider implementation**
-   ```bash
-   # Use the abstract provider interface
-   cp src/providers/openai_provider.py src/providers/new_provider.py
-   ```
-
-2. **Update configuration**
-   ```yaml
-   # Add to config/application.yaml
-   ai_providers:
-     enabled: ["openai", "anthropic", "xai", "new_provider"]
-   ```
-
-3. **Test integration**
-   ```bash
-   python scripts/test_providers.py --provider new_provider
-   ```
-
-### Git Workflow
-
-1. Create a feature branch from `main`
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
-
-2. Make your changes following the coding standards
-
-3. Commit with clear, descriptive messages:
-   ```bash
-   git add .
-   git commit -m "Add feature: brief description"
-   ```
-
-4. Push to remote and create a pull request
-   ```bash
-   git push origin feature/your-feature-name
-   ```
+# Cache
+SIZECOMPARATOR_CACHE_PROVIDER=memory
+SIZECOMPARATOR_CACHE_TTL=3600
+```
 
 ## Testing
 
 ### Running Tests
 
 ```bash
-# Run all tests
-pytest tests/ -v
+# Test service factory
+python test_service_factory.py
 
-# Run with coverage
-pytest tests/ --cov=src --cov-report=html
+# Test fast validation
+python test_fast_validation.py
 
-# Run specific test file
-pytest tests/unit/test_weight_parser.py
+# Test unified API
+python test_unified_app.py
 
-# Run integration tests with real AI providers
-pytest tests/integration/ --run-live-providers
+# Test basic functionality
+python test_mvp.py
+
+# Test integration
+python test_integration.py
+
+# Test validation service
+python test_validation.py
 ```
 
-### Writing Tests
+### Available Test Files
 
-- Write unit tests for all weight processing functions
-- Include integration tests for AI provider interactions
-- Maintain test coverage above 80%
-- Use fixtures for consistent test data
-- Mock AI provider responses for reliable testing
+- `test_service_factory.py` - Service selection and factory logic
+- `test_fast_validation.py` - Fast validation service optimization
+- `test_unified_app.py` - Unified API endpoint functionality
+- `test_mvp.py` - Basic MVP comparison service
+- `test_integration.py` - End-to-end integration tests
+- `test_validation.py` - AI validation service tests
 
-### Type Checking
+### Manual Testing
 
 ```bash
-# Run type checking
-mypy src/
+# Test configuration loading
+python -c "from src.core.simple_config import get_config; print('Config loaded successfully')"
 
-# Check specific file
-mypy src/services/ai_manager.py
+# Test weight processor
+python demo_weight_processor.py
+
+# Test OpenAI provider
+python demo_openai_provider.py
 ```
 
-### Linting and Formatting
+## Endpoints
 
+- **Main API**: `POST /api/compare`
+- **Health Check**: `GET /health`
+- **Service Status**: `GET /api/status`
+- **API Documentation**: `GET /docs`
+- **Demo Interface**: `GET /demo/fast_validation`
+
+## Documentation
+
+- **API Documentation**: `docs/API_DOCUMENTATION.md`
+- **Configuration Guide**: `docs/CONFIGURATION_GUIDE.md`
+- **Service Selection Guide**: `docs/SERVICE_SELECTION_GUIDE.md`
+- **Development Guide**: `CLAUDE.md`
+
+## Weight Input Formats
+
+### Supported Units
+- **Kilograms**: kg, kilograms, kilogram
+- **Pounds**: lbs, pounds, pound, lb
+- **Grams**: g, grams, gram
+- **Tons**: tons, ton, tonnes, tonne
+- **Ounces**: oz, ounces, ounce
+
+### Input Examples
+```
+"5 kg"
+"10 pounds"
+"500 grams"
+"2.5 tons"
+"1 ounce"
+"75kg"
+"25 lbs"
+"0.5 tonnes"
+```
+
+### Weight Ranges
+- **Minimum**: 0.001g
+- **Maximum**: 1,000,000kg
+- **Common Range**: 1g - 100kg (optimal for fast validation)
+- **Extreme Range**: <1g or >100kg (uses full validation)
+
+## Production Deployment
+
+### Docker
 ```bash
-# Run linter
-ruff check src/
-
-# Auto-fix issues
-ruff check src/ --fix
-
-# Format code
-ruff format src/
-```
-
-## Configuration
-
-### AI Provider Configuration
-
-The system supports multiple AI providers with automatic failover:
-
-```yaml
-# config/application.yaml
-ai_providers:
-  enabled: ["openai", "anthropic", "xai"]
-  timeout_seconds: 10
-  max_retries: 2
-  
-  openai:
-    model: "gpt-4"
-    max_tokens: 150
-    temperature: 0.7
-    
-  anthropic:
-    model: "claude-3-sonnet-20240229"
-    max_tokens: 150
-    temperature: 0.7
-```
-
-### Prompt Templates
-
-Prompts are configuration-driven and can be updated without code changes:
-
-```bash
-# Edit prompt templates
-vim config/prompts/weight_comparison.txt
-
-# Restart application to reload
-```
-
-### Application Settings
-
-```yaml
-# config/application.yaml
-application:
-  max_weight_lbs: 1000000
-  max_weight_kg: 453592
-  supported_units: ["lbs", "kg"]
-  cache_ttl_seconds: 300
-```
-
-## API Documentation
-
-### Compare Weight Endpoint
-
-**POST** `/api/compare`
-
-Request body:
-```json
-{
-    "weight": 24.5,
-    "unit": "lbs"
-}
-```
-
-Response:
-```json
-{
-    "comparisons": [
-        {
-            "description": "Four medium chickens",
-            "individual_weight": "6 lbs each",
-            "confidence": 0.9
-        },
-        {
-            "description": "One car tire", 
-            "individual_weight": "24 lbs total",
-            "confidence": 0.8
-        }
-    ],
-    "request_weight": "24 lbs",
-    "response_time_ms": 1250
-}
-```
-
-### Health Check Endpoint
-
-**GET** `/health`
-
-Returns application and AI provider health status.
-
-## Deployment
-
-### Docker Deployment
-
-```bash
-# Build container
+# Build image
 docker build -t sizecomparator .
 
-# Run container
+# Run with environment variables
 docker run -p 8000:8000 \
-  -e OPENAI_API_KEY=your_key \
-  -e ANTHROPIC_API_KEY=your_key \
-  -e XAI_API_KEY=your_key \
+  -e SIZECOMPARATOR_OPENAI_API_KEY=your_key \
+  -e SIZECOMPARATOR_ENV=production \
   sizecomparator
+```
+
+### Docker Compose
+```bash
+# Development
+docker-compose up
+
+# Production
+docker-compose -f docker-compose.prod.yml up
 ```
 
 ### Environment Variables
 
 | Variable | Description | Required |
 |----------|-------------|----------|
-| `OPENAI_API_KEY` | OpenAI API key | Yes |
-| `ANTHROPIC_API_KEY` | Anthropic API key | Yes |
-| `XAI_API_KEY` | X.ai API key | Yes |
-| `LOG_LEVEL` | Logging level (INFO, DEBUG, ERROR) | No |
-| `MAX_WEIGHT_LBS` | Maximum weight in pounds | No |
+| `SIZECOMPARATOR_OPENAI_API_KEY` | OpenAI API key | Optional |
+| `SIZECOMPARATOR_ANTHROPIC_API_KEY` | Anthropic API key | Optional |
+| `SIZECOMPARATOR_XAI_API_KEY` | X.ai API key | Optional |
+| `SIZECOMPARATOR_ENV` | Environment (development/production) | No |
+| `SIZECOMPARATOR_SERVICE_STRATEGY` | Service selection strategy | No |
+
+**Note**: At least one AI provider API key is required for full functionality.
 
 ### Health Checks
 
 The application includes health check endpoints for monitoring:
 
 - `/health` - Overall application health
-- `/health/providers` - AI provider connectivity status
-- `/health/ready` - Readiness for traffic
-
-## Contributing
-
-We welcome contributions! Please follow these guidelines:
-
-1. **Check existing issues** before creating new ones
-2. **Fork the repository** and create a feature branch
-3. **Follow the coding standards** outlined above
-4. **Write tests** for new functionality
-5. **Update documentation** as needed
-6. **Submit a pull request** with a clear description
-
-### Pull Request Process
-
-1. Ensure all tests pass and type checking succeeds
-2. Update the README.md with details of changes if needed
-3. Update API documentation for any endpoint changes
-4. Request review from maintainers
-5. Address review feedback promptly
-
-### Code Review Checklist
-
-- [ ] Code follows style guidelines and type hints
-- [ ] Tests are included and passing
-- [ ] AI provider integration is properly tested
-- [ ] Error handling is comprehensive
-- [ ] Configuration is properly externalized
-- [ ] Documentation is updated
-- [ ] No sensitive data is exposed
-- [ ] Commit messages are clear and descriptive
-
-## Architecture
-
-### Key Design Principles
-
-- **Simplicity**: Minimal dependencies, vanilla frontend
-- **Reliability**: Multiple AI providers with automatic failover
-- **Maintainability**: Configuration-driven behavior
-- **Performance**: Sub-2 second response times
-- **Extensibility**: Easy addition of new AI providers
-
-### AI Provider Integration
-
-The system uses a provider abstraction pattern with:
-
-- **Circuit Breaker**: Automatic failure detection and recovery
-- **Retry Logic**: Exponential backoff with provider rotation
-- **Response Validation**: Quality checks for AI-generated comparisons
-- **Fallback Mechanisms**: Graceful degradation when providers fail
-
-### Frontend Architecture
-
-- **Vanilla JavaScript**: No frameworks or build tools required
-- **Responsive Design**: Mobile-first CSS Grid layout
-- **Theme System**: Light/dark mode with localStorage persistence
-- **Progressive Enhancement**: Core functionality works without JavaScript
+- `/api/status` - Service status and metrics
+- Service availability monitoring built-in
 
 ## Performance
 
-### Response Time Targets
+- **Fast Validation**: <2 second response time target
+- **Common Weights**: Optimized for 1g-100kg range
+- **Extreme Weights**: Enhanced handling for <1g or >100kg
+- **Fallback**: Graceful degradation to basic service
+- **Caching**: Memory/Redis caching for improved performance
 
-| Metric | Target | Measurement |
-|--------|--------|-------------|
-| API Response | < 2 seconds (95th percentile) | Server-side timing |
-| Frontend Load | < 500ms | Browser performance API |
-| AI Provider Timeout | 10 seconds maximum | Provider-specific timing |
+## AI Provider Integration
 
-### Optimization Strategies
+- **OpenAI GPT-4**: Primary provider for fast validation
+- **Anthropic Claude**: Detailed reasoning and technical comparisons
+- **X.ai Grok**: Creative and alternative perspectives
+- **Shared Components**: Unified prompt building and validation
+- **Circuit Breaker**: Automatic failover when providers unavailable
 
-- **Parallel AI Calls**: Multiple providers queried simultaneously
-- **Response Caching**: Frequently requested weights cached temporarily  
-- **Circuit Breakers**: Failed providers bypassed automatically
-- **Async Processing**: Non-blocking I/O throughout the application
+## Contributing
+
+1. Follow the development workflow in `CLAUDE.md`
+2. Use the unified API endpoint for all new features
+3. Test with multiple service modes
+4. Ensure AI provider fallback works correctly
+5. Update documentation for API changes
 
 ## Troubleshooting
 
 ### Common Issues
 
-**"Service temporarily unavailable"**
-- Check AI provider API keys in environment variables
-- Verify network connectivity to AI provider endpoints
-- Check application logs for specific provider errors
+**Service Won't Start**
+1. Check all required environment variables are set
+2. Verify API keys are valid and not expired
+3. Check port availability
+4. Review startup logs for specific errors
 
-**Slow response times**
-- Monitor AI provider response times in logs
-- Check if circuit breakers are tripping
-- Verify network latency to AI providers
+**AI Providers Not Available**
+1. Verify API keys are correctly set
+2. Check internet connectivity
+3. Verify API key permissions and quotas
+4. Test with basic service mode first
 
-**Invalid weight comparisons**
-- Review AI provider responses in debug logs
-- Check prompt template configuration
-- Verify response validation rules
+**Performance Issues**
+1. Increase timeout values
+2. Use fast validation service mode
+3. Enable caching with appropriate TTL
+4. Monitor service availability patterns
 
-### Logging
+### Getting Help
 
-Application logs include:
-- Request/response timing
-- AI provider selection and fallback
-- Error details with request IDs
-- Performance metrics
-
-```bash
-# View logs in development
-tail -f logs/application.log
-
-# Filter for errors
-grep ERROR logs/application.log
-```
+1. **Check service status**: `GET /api/status`
+2. **Enable debug logging**: `SIZECOMPARATOR_LOG_LEVEL=debug`
+3. **Test explicit selection**: Use `service_mode` parameter
+4. **Check configuration**: Review `docs/CONFIGURATION_GUIDE.md`
+5. **Use basic mode**: Test with basic service to isolate issues
 
 ## License
 
-[Choose an appropriate license for your project]
+[License information here]
+
+## Support
+
+For issues or questions:
+1. Check service status at `/api/status`
+2. Review configuration in `docs/CONFIGURATION_GUIDE.md`
+3. Test with basic service mode first
+4. Check logs for detailed error information
 
 ---
 

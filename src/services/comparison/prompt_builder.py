@@ -9,7 +9,7 @@ import logging
 import re
 from typing import Any, Dict, List, Optional
 
-from ...core.config import ConfigLoader
+from ...core.simple_config import SimpleConfig
 from ...services.weight_processor import WeightItem
 from .types import WeightContext, ComparisonObject
 
@@ -27,7 +27,7 @@ class TemplateVariable:
 class SafetyFilter:
     """Ensures appropriate content generation"""
     
-    def __init__(self, config: ConfigLoader):
+    def __init__(self, config: SimpleConfig):
         self._config = config
         self._blocked_terms = set(config.get_section("safety.blocked_terms", []))
         self._sensitive_categories = set(config.get_section("safety.sensitive_categories", []))
@@ -71,7 +71,7 @@ Note: Please ensure all comparisons are:
 class PromptBuilder:
     """Build provider-specific prompts using templates"""
     
-    def __init__(self, config: ConfigLoader):
+    def __init__(self, config: SimpleConfig):
         self._config = config
         self._safety_filter = SafetyFilter(config)
         

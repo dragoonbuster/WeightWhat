@@ -209,6 +209,25 @@ class UnifiedSizeComparatorApp:
         
         # Static file serving for frontend
         if self.config["serve_frontend"] and self.config["frontend_path"].exists():
+            # Mount CSS directory
+            css_path = self.config["frontend_path"] / "css"
+            if css_path.exists():
+                self.app.mount(
+                    "/css",
+                    StaticFiles(directory=str(css_path)),
+                    name="css"
+                )
+            
+            # Mount JS directory
+            js_path = self.config["frontend_path"] / "js"
+            if js_path.exists():
+                self.app.mount(
+                    "/js",
+                    StaticFiles(directory=str(js_path)),
+                    name="js"
+                )
+            
+            # Also mount at /static for backward compatibility
             self.app.mount(
                 "/static", 
                 StaticFiles(directory=str(self.config["frontend_path"])), 
@@ -569,7 +588,7 @@ class UnifiedSizeComparatorApp:
         # Check frontend
         checks["frontend"] = self.config["frontend_path"].exists()
         
-        overall_healthy = checks.get("service_factory", False) and checks.get("service_mvp", False)
+        overall_healthy = checks.get("service_factory", False) and checks.get("service_basic", False)
         
         return {
             "healthy": overall_healthy,

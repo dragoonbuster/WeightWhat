@@ -13,7 +13,7 @@ from collections import defaultdict, deque
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Set, Tuple, Protocol
 
-from ...core.config import ConfigLoader
+from ...core.simple_config import SimpleConfig
 from ...models.providers import AIProvider
 from .types import WeightCategory, WeightContext
 
@@ -76,7 +76,7 @@ class IAIProviderFactory(Protocol):
 class ProviderSelector:
     """Intelligent AI provider selection based on multiple criteria"""
     
-    def __init__(self, provider_factory: IAIProviderFactory, config: ConfigLoader):
+    def __init__(self, provider_factory: IAIProviderFactory, config: SimpleConfig):
         self._provider_factory = provider_factory
         self._config = config
         self._selection_history = deque(maxlen=1000)

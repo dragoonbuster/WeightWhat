@@ -40,16 +40,17 @@ class SizeComparatorApp {
      * @param {string} mode - Either 'fast' for fast validation or 'single' for single call
      */
     async compareWeight(mode) {
+        console.log('compareWeight called with mode:', mode);
         const weight = document.getElementById('weight').value.trim();
         const style = document.getElementById('style').value;
         const resultDiv = document.getElementById('result');
         const fastBtn = document.getElementById('fastBtn');
-        const singleBtn = document.getElementById('singleBtn');
         
         if (!weight) {
             alert('Please enter a weight!');
             return;
         }
+        console.log('Weight:', weight, 'Style:', style);
         
         // Show loading state
         this.setLoadingState(true, mode);
@@ -83,27 +84,22 @@ class SizeComparatorApp {
     setLoadingState(isLoading, mode) {
         const resultDiv = document.getElementById('result');
         const fastBtn = document.getElementById('fastBtn');
-        const singleBtn = document.getElementById('singleBtn');
         
         if (isLoading) {
             fastBtn.disabled = true;
-            singleBtn.disabled = true;
             
             if (mode === 'fast') {
-                fastBtn.textContent = '⚡ Fast validating...';
-                resultDiv.innerHTML = '⚡ Smart validation in progress...<br>🧠 Making 2 calls + rule checking...';
+                fastBtn.textContent = 'Fast validating...';
+                resultDiv.innerHTML = 'Smart validation in progress...<br>Making 2 calls + rule checking...';
             } else {
-                singleBtn.textContent = '🚀 AI thinking...';
-                resultDiv.innerHTML = '🧠 Single AI call in progress...';
+                resultDiv.innerHTML = 'AI processing...';
             }
             
             resultDiv.style.display = 'block';
             resultDiv.className = 'loading';
         } else {
             fastBtn.disabled = false;
-            singleBtn.disabled = false;
-            fastBtn.textContent = '⚡ Fast Validated (<2s)';
-            singleBtn.textContent = '🚀 Single Call (<3s)';
+            fastBtn.textContent = 'Fast Validated';
         }
     }
 
@@ -116,27 +112,24 @@ class SizeComparatorApp {
     showSuccessResult(data, mode, clientTime) {
         const resultDiv = document.getElementById('result');
         
-        // Get provider emoji and validation info
-        let providerEmoji = '⚡';
+        // Get validation info
         let validationInfo = '';
         
         if (data.provider_used && data.provider_used.includes('fast_validated')) {
-            providerEmoji = '⚡';
-            validationInfo = '<br><strong>⚡ Validation:</strong> Fast optimized validation';
+            validationInfo = '<br><strong>Validation:</strong> Fast optimized validation';
         } else if (data.provider_used && data.provider_used.includes('openai')) {
-            providerEmoji = '🧠';
-            validationInfo = '<br><strong>🚀 Mode:</strong> Single AI call';
+            validationInfo = '<br><strong>Mode:</strong> Single AI call';
         }
         
         resultDiv.className = 'success';
         resultDiv.innerHTML = `
-            <h3>📏 ${mode === 'fast' ? 'Fast Validated' : 'Single Call'} Result:</h3>
+            <h3>${mode === 'fast' ? 'Fast Validated' : 'Single Call'} Result:</h3>
             <p style="font-size: 1.3em; margin: 15px 0; line-height: 1.4em;">${data.comparison_text}</p>
             <div class="meta">
-                <strong>📊 Weight:</strong> ${data.weight_processed}<br>
-                <strong>⚡ Server Time:</strong> ${data.response_time_ms}ms<br>
-                <strong>🌐 Client Time:</strong> ${clientTime}ms<br>
-                <strong>🤖 Provider:</strong> ${providerEmoji} ${data.provider_used || 'Unknown'}
+                <strong>Weight:</strong> ${data.weight_processed}<br>
+                <strong>Server Time:</strong> ${data.response_time_ms}ms<br>
+                <strong>Client Time:</strong> ${clientTime}ms<br>
+                <strong>Provider:</strong> ${data.provider_used || 'Unknown'}
                 ${validationInfo}
             </div>
         `;
@@ -153,12 +146,12 @@ class SizeComparatorApp {
         
         if (error instanceof APIError) {
             resultDiv.innerHTML = `
-                <h3>❌ Error:</h3>
+                <h3>Error:</h3>
                 <p>${error.message}</p>
             `;
         } else {
             resultDiv.innerHTML = `
-                <h3>❌ Network Error:</h3>
+                <h3>Network Error:</h3>
                 <p>Could not connect to the AI service. Please try again.</p>
                 <p><strong>Error:</strong> ${error.message}</p>
             `;

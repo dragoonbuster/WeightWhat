@@ -19,12 +19,13 @@ from enum import Enum
 from dataclasses import dataclass
 from decimal import Decimal
 
-from models.mvp import MVPComparisonRequest, MVPComparisonResponse
-from services.shared.interfaces import BaseComparisonService
-from services.fast_validation_service import FastValidationService
-from services.ai_validation_service import AIValidationService
-from services.mvp_comparison import MVPComparisonService
-from core.environment import EnvironmentManager, EnvironmentType
+from src.models.mvp import MVPComparisonRequest, MVPComparisonResponse
+from src.services.shared.interfaces import BaseComparisonService
+from src.services.fast_validation_service import FastValidationService
+from src.services.ai_validation_service import AIValidationService
+from src.services.mvp_comparison import MVPComparisonService
+from src.core.environment import EnvironmentManager, EnvironmentType
+from src.core.simple_config import get_config
 
 logger = logging.getLogger(__name__)
 
@@ -191,7 +192,7 @@ class ComparisonServiceFactory:
         """Create basic comparison service for simple use cases"""
         try:
             # Import here to avoid circular imports
-            from services.mvp_comparison import MVPComparisonService
+            from ..mvp_comparison import MVPComparisonService
             service = MVPComparisonService()
             self.logger.info("Created basic comparison service")
             return service
@@ -445,7 +446,7 @@ class ComparisonServiceFactory:
         """Extract weight in kg from request"""
         try:
             # Use weight processor to parse weight
-            from services.weight_processor import WeightProcessor
+            from ..weight_processor import WeightProcessor
             processor = WeightProcessor()
             processed = processor.process_weight(request.weight_input)
             return float(processed.weight_kg)

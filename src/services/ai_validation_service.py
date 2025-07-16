@@ -7,11 +7,11 @@ import time
 from typing import List, Dict, Any, Optional, Tuple
 from dataclasses import dataclass
 
-from models.mvp import MVPComparisonRequest, MVPComparisonResponse
-from services.weight_processor import WeightProcessor
-from services.shared.ai_provider_manager import AIProviderManager
-from services.shared.fallback_data import FallbackDataManager
-from services.shared.interfaces import BaseComparisonService
+from ..models.mvp import MVPComparisonRequest, MVPComparisonResponse
+from .weight_processor import WeightProcessor
+from .shared.ai_provider_manager import AIProviderManager
+from .shared.fallback_data import FallbackDataManager
+from .shared.interfaces import BaseComparisonService
 
 
 @dataclass

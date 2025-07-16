@@ -13,6 +13,7 @@ import httpx
 from typing import Optional, Dict, Any, List, Tuple
 
 from .interfaces import AIProviderInterface, AIProviderConfig, AIProviderResponse
+from src.core.simple_config import get_config
 
 # AI Provider imports with availability checks
 try:
@@ -213,6 +214,8 @@ class XAIProvider:
                 "Content-Type": "application/json"
             }
             
+            print(f"X.AI API request - Model: {self.config.model}, URL: {url}")
+            
             data = {
                 "model": self.config.model,
                 "messages": [
@@ -238,6 +241,8 @@ class XAIProvider:
                     response_time_ms=response_time_ms
                 )
             else:
+                error_body = response.text[:500] if response.text else "No response body"
+                print(f"X.AI API Error - Status: {response.status_code}, Body: {error_body}")
                 return AIProviderResponse(
                     content="",
                     provider_name=self.name,
@@ -278,52 +283,115 @@ class AIProviderManager:
     
     def __init__(self):
         self.providers: Dict[str, AIProviderInterface] = {}
-        self.provider_order = ["openai", "anthropic", "xai"]  # Preference order
+        self.provider_order = ["openai", "anthropic", "xai"]  # Default preference order
         self._setup_providers()
+        
+        # Intelligent routing configuration
+        self.routing_config = {
+            "simple_weights": {  # 1-100kg
+                "preferred_providers": ["xai", "openai", "anthropic"],
+                "preferred_models": {
+                    "xai": "grok-3-mini",
+                    "openai": "gpt-3.5-turbo",
+                    "anthropic": "claude-3-haiku"
+                }
+            },
+            "complex_weights": {  # <1kg or >100kg
+                "preferred_providers": ["openai", "anthropic", "xai"],
+                "preferred_models": {
+                    "xai": "grok-2",
+                    "openai": "gpt-4",
+                    "anthropic": "claude-3-opus"
+                }
+            },
+            "style_preferences": {
+                "technical": ["openai", "xai", "anthropic"],
+                "creative": ["anthropic", "xai", "openai"],
+                "default": ["xai", "openai", "anthropic"]
+            }
+        }
     
     def _setup_providers(self):
         """Initialize AI provider clients - extracted from ai_mvp_comparison.py"""
         
+        # Get simplified configuration
+        config = get_config()
+        
         # OpenAI setup
-        openai_key = os.getenv('SIZECOMPARATOR_OPENAI_API_KEY') or os.getenv('OPENAI_API_KEY')
         openai_config = AIProviderConfig(
             name="openai",
-            api_key=openai_key,
-            model="gpt-4",
-            max_tokens=150,
-            temperature=0.7,
-            timeout=10.0,
-            enabled=bool(openai_key)
+            api_key=config.get('openai_api_key'),
+            model=config.get('openai_model'),
+            max_tokens=config.get('openai_max_tokens'),
+            temperature=config.get('openai_temperature'),
+            timeout=config.get('openai_timeout'),
+            enabled=bool(config.get('openai_api_key'))
         )
         self.providers["openai"] = OpenAIProvider(openai_config)
         
         # Anthropic setup
-        anthropic_key = os.getenv('SIZECOMPARATOR_ANTHROPIC_API_KEY') or os.getenv('ANTHROPIC_API_KEY')
         anthropic_config = AIProviderConfig(
             name="anthropic",
-            api_key=anthropic_key,
-            model="claude-3-sonnet-20240229",
-            max_tokens=150,
-            temperature=0.7,
-            timeout=10.0,
-            enabled=bool(anthropic_key)
+            api_key=config.get('anthropic_api_key'),
+            model=config.get('anthropic_model'),
+            max_tokens=config.get('anthropic_max_tokens'),
+            temperature=config.get('anthropic_temperature'),
+            timeout=config.get('anthropic_timeout'),
+            enabled=bool(config.get('anthropic_api_key'))
         )
         self.providers["anthropic"] = AnthropicProvider(anthropic_config)
         
         # X.ai setup
-        xai_key = os.getenv('SIZECOMPARATOR_XAI_API_KEY')
         xai_config = AIProviderConfig(
             name="xai",
-            api_key=xai_key,
-            model="grok-beta",
-            max_tokens=150,
-            temperature=0.8,  # Slightly higher for Grok's creativity
-            timeout=10.0,
-            enabled=bool(xai_key)
+            api_key=config.get('xai_api_key'),
+            model=config.get('xai_model'),
+            max_tokens=config.get('xai_max_tokens', 150),
+            temperature=config.get('xai_temperature', 0.8),  # Slightly higher for Grok's creativity
+            timeout=config.get('xai_timeout'),
+            enabled=bool(config.get('xai_api_key'))
         )
         self.providers["xai"] = XAIProvider(xai_config)
     
-    async def generate_comparison_with_fallover(self, prompt: str, **kwargs) -> Tuple[Optional[str], str]:
+    def _get_provider_order(self, weight_kg: float = None, style: str = "default") -> List[str]:
+        """
+        Determine provider order based on weight complexity and style.
+        
+        Args:
+            weight_kg: Weight in kilograms (for complexity determination)
+            style: Comparison style (default, technical, creative)
+            
+        Returns:
+            Ordered list of provider names to try
+        """
+        # Determine weight complexity
+        if weight_kg is not None:
+            is_simple_weight = 1 <= weight_kg <= 100
+            weight_config = self.routing_config["simple_weights" if is_simple_weight else "complex_weights"]
+            base_order = weight_config["preferred_providers"]
+        else:
+            base_order = self.provider_order
+            
+        # Apply style preferences
+        style_order = self.routing_config["style_preferences"].get(style, self.provider_order)
+        
+        # Combine preferences: prioritize style within weight category
+        final_order = []
+        for provider in style_order:
+            if provider in base_order and provider not in final_order:
+                final_order.append(provider)
+        
+        # Add any remaining providers from base_order
+        for provider in base_order:
+            if provider not in final_order:
+                final_order.append(provider)
+                
+        # Filter to only available providers
+        available_order = [p for p in final_order if p in self.providers and self.providers[p].is_available]
+        
+        return available_order if available_order else ["xai", "openai", "anthropic"]
+    
+    async def generate_comparison_with_fallover(self, prompt: str, weight_kg: float = None, style: str = "default", **kwargs) -> Tuple[Optional[str], str]:
         """
         Try AI providers in order of preference until one succeeds.
         
@@ -336,7 +404,10 @@ class AIProviderManager:
             Tuple of (comparison_text, provider_used)
         """
         
-        for provider_name in self.provider_order:
+        # Get intelligent provider order based on weight and style
+        provider_order = self._get_provider_order(weight_kg, style)
+        
+        for provider_name in provider_order:
             provider = self.providers.get(provider_name)
             if not provider or not provider.is_available:
                 continue
@@ -385,19 +456,35 @@ class AIProviderManager:
             print(f"Parallel AI calls timed out after {timeout}s")
             return []
     
-    async def _single_provider_call(self, prompt: str, call_id: str, **kwargs) -> str:
-        """Single provider call for parallel execution"""
+    async def _single_provider_call(self, prompt: str, call_id: str, weight_kg: float = None, style: str = "default", **kwargs) -> str:
+        """Single provider call for parallel execution with intelligent routing"""
         
-        # Try primary provider (OpenAI) for consistency in validation
-        provider = self.providers.get("openai")
-        if provider and provider.is_available:
+        # Get provider order based on weight and style
+        provider_order = self._get_provider_order(weight_kg, style)
+        
+        # Try providers in order
+        for provider_name in provider_order:
+            provider = self.providers.get(provider_name)
+            if not provider:
+                print(f"Provider {provider_name} not found in providers dict")
+                continue
+            if not provider.is_available:
+                print(f"Provider {provider_name} is not available")
+                continue
+                
             try:
+                print(f"Trying provider {provider_name} for call {call_id}")
                 response = await provider.generate_comparison(prompt, **kwargs)
                 if response.success and response.content:
+                    print(f"Provider call {call_id} succeeded with {provider_name}")
                     return response.content
+                else:
+                    print(f"Provider {provider_name} returned empty or failed response: {response.error_message}")
             except Exception as e:
-                print(f"Provider call {call_id} failed: {e}")
+                print(f"Provider {provider_name} call {call_id} failed with exception: {e}")
+                continue
         
+        print(f"All providers failed for call {call_id}")
         return ""
     
     async def validate_responses_with_ai(self, weight_kg: float, weight_display: str, responses: List[str]) -> str:

@@ -22,7 +22,7 @@ from pydantic import ValidationError
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from ...models.errors import ErrorCategory, ErrorSeverity
-from ...core.config import ConfigLoader
+from ...core.simple_config import SimpleConfig
 from .request_id import get_current_request_id
 
 logger = logging.getLogger(__name__)
@@ -40,7 +40,7 @@ class ErrorHandlingMiddleware(BaseHTTPMiddleware):
     def __init__(
         self,
         app,
-        config_loader: ConfigLoader,
+        config_loader: SimpleConfig,
         include_debug_info: Optional[bool] = None,
         log_all_errors: bool = True
     ):

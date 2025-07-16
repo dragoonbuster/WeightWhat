@@ -9,7 +9,7 @@ from abc import ABC, abstractmethod
 from typing import Protocol, Optional, Dict, Any, List, Tuple
 from dataclasses import dataclass
 
-from models.mvp import MVPComparisonRequest, MVPComparisonResponse
+from ...models.mvp import MVPComparisonRequest, MVPComparisonResponse
 
 
 @dataclass

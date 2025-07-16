@@ -19,7 +19,8 @@ from decimal import Decimal
 import logging
 import uuid
 
-from .base import AIProvider, ProviderError, ValidationError, ParseError
+from .base import AIProviderBase
+from ..core.exceptions import AIProviderException, ValidationException
 from ..models.providers import (
     AIProviderRequest,
     ProviderHealth,
@@ -305,7 +306,7 @@ class ResponseCache:
             return len(self.cache) * 1024  # Rough estimate
 
 
-class OpenAIProvider(AIProvider):
+class OpenAIProvider(AIProviderBase):
     """Production OpenAI provider with advanced features."""
     
     def __init__(self, config: Dict[str, Any], logger: Optional[logging.Logger] = None,
@@ -362,7 +363,7 @@ class OpenAIProvider(AIProvider):
     async def initialize(self) -> None:
         """Initialize OpenAI client and validate configuration."""
         if not self.api_key:
-            raise ProviderError("OpenAI API key not configured", self.name)
+            raise AIProviderException("OpenAI API key not configured", self.name)
         
         # Initialize OpenAI client with proper configuration
         self.client = openai.AsyncOpenAI(
@@ -961,7 +962,7 @@ IMPORTANT GUIDELINES:
         # Update health status
         self._update_health_status(ProviderStatus.DEGRADED, "Rate limit reached")
         
-        raise ProviderError(
+        raise AIProviderException(
             "OpenAI rate limit reached",
             self.name,
             retry_after=getattr(error, 'retry_after', None)
@@ -980,7 +981,7 @@ IMPORTANT GUIDELINES:
         # Update health status
         self._update_health_status(ProviderStatus.UNHEALTHY, str(error))
         
-        raise ProviderError(f"OpenAI API error: {str(error)}", self.name)
+        raise AIProviderException(f"OpenAI API error: {str(error)}", self.name)
     
     def _parse_text_response(self, content: str, request: AIProviderRequest, response: Any) -> WeightComparisonResponse:
         """Parse unstructured text response (fallback)."""

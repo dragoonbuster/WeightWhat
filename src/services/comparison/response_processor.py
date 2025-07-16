@@ -10,7 +10,7 @@ import re
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from ...core.config import ConfigLoader
+from ...core.simple_config import SimpleConfig
 from ...services.weight_processor import WeightItem
 from .types import ComparisonObject
 
@@ -301,7 +301,7 @@ class ResponseValidator:
 class ResponseEnhancer:
     """Enhance validated responses with additional data"""
     
-    def __init__(self, config: ConfigLoader):
+    def __init__(self, config: SimpleConfig):
         self._config = config
         
     async def enhance(
@@ -407,7 +407,7 @@ class ResponseEnhancer:
 class ResponseProcessor:
     """Process and enhance AI responses"""
     
-    def __init__(self, config: ConfigLoader):
+    def __init__(self, config: SimpleConfig):
         self._config = config
         self._parser = ResponseParser()
         self._validator = ResponseValidator()

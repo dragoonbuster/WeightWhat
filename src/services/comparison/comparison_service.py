@@ -14,7 +14,7 @@ from enum import Enum
 from typing import Any, Dict, List, Optional, Protocol, Tuple
 from uuid import UUID, uuid4
 
-from ...core.config import ConfigLoader
+from ...core.simple_config import get_config, SimpleConfig
 from ...models.providers import AIProvider
 from ...services.weight_processor import WeightProcessor, WeightItem, WeightUnit
 from .types import (
@@ -69,7 +69,7 @@ class ComparisonService:
         weight_processor: WeightProcessor,
         provider_factory: IAIProviderFactory,
         cache_service: ICacheService,
-        config: ConfigLoader,
+        config: SimpleConfig,
         metrics: IMetricsCollector,
         logger: logging.Logger
     ):
@@ -90,12 +90,8 @@ class ComparisonService:
         self._response_processor = ResponseProcessor(config)
         
         # Performance settings
-        self._timeout_ms = config.get_section(
-            "comparison_service.performance.provider_timeout_ms", 1500
-        )
-        self._cache_ttl = config.get_section(
-            "comparison_service.performance.cache_ttl_seconds", 86400
-        )
+        self._timeout_ms = config.get('service_timeout_ms', 1500)
+        self._cache_ttl = config.get('cache_ttl', 86400)
         
         # Comparison object database (simplified for now)
         self._comparison_database = self._initialize_comparison_database()
@@ -514,7 +510,7 @@ def create_comparison_service(
     weight_processor: WeightProcessor,
     provider_factory: IAIProviderFactory,
     cache_service: ICacheService,
-    config: ConfigLoader,
+    config: SimpleConfig,
     metrics: IMetricsCollector,
     logger: Optional[logging.Logger] = None
 ) -> ComparisonService:

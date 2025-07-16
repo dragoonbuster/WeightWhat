@@ -14,12 +14,12 @@ from typing import List, Union
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from ...core.config import ConfigLoader
+from ...core.simple_config import SimpleConfig
 
 logger = logging.getLogger(__name__)
 
 
-def setup_cors_middleware(app: FastAPI, config_loader: ConfigLoader):
+def setup_cors_middleware(app: FastAPI, config_loader: SimpleConfig):
     """
     Configure CORS middleware using CONFIG_SYSTEM_SPEC settings.
     
@@ -199,7 +199,7 @@ def _should_allow_credentials(environment: str) -> bool:
     return environment in ["development", "staging"]
 
 
-def validate_cors_configuration(config_loader: ConfigLoader) -> dict:
+def validate_cors_configuration(config_loader: SimpleConfig) -> dict:
     """
     Validate CORS configuration and return validation results.
     

@@ -8,11 +8,11 @@ import re
 from typing import List, Dict, Any, Optional, Tuple
 from dataclasses import dataclass
 
-from models.mvp import MVPComparisonRequest, MVPComparisonResponse
-from services.weight_processor import WeightProcessor
-from services.shared.ai_provider_manager import AIProviderManager
-from services.shared.fallback_data import FallbackDataManager
-from services.shared.interfaces import BaseComparisonService
+from ..models.mvp import MVPComparisonRequest, MVPComparisonResponse
+from .weight_processor import WeightProcessor
+from .shared.ai_provider_manager import AIProviderManager
+from .shared.fallback_data import FallbackDataManager
+from .shared.interfaces import BaseComparisonService
 
 
 @dataclass
@@ -234,9 +234,9 @@ class FastValidationService(BaseComparisonService):
                 weight_kg, processed_weight.weight_display, request.style
             )
             
-            # Make single provider call (OpenAI preferred for fast validation)
+            # Make single provider call with intelligent routing
             content = await self.ai_provider_manager._single_provider_call(
-                prompt, call_id, timeout=3.0
+                prompt, call_id, weight_kg=weight_kg, style=request.style, timeout=3.0
             )
             
             return content if content else ""

@@ -4,19 +4,57 @@ Run the unified SizeComparator server directly
 """
 
 import sys
+import os
 from pathlib import Path
 
-# Add src directory to Python path
-sys.path.insert(0, str(Path(__file__).parent / "src"))
+# Load .env file for API keys and configuration
+from dotenv import load_dotenv
+env_path = Path(__file__).parent / '.env'
+if env_path.exists():
+    load_dotenv(env_path, override=True)
+    print(f"✓ Loaded environment from {env_path}")
+else:
+    print("⚠️  Warning: No .env file found. Creating from template...")
+    template_path = Path(__file__).parent / '.env.example'
+    if template_path.exists():
+        import shutil
+        shutil.copy(template_path, env_path)
+        print(f"✓ Created .env from template. Please edit {env_path} to add your API keys.")
+
+# Check for API keys
+api_keys_found = []
+if os.getenv('SIZECOMPARATOR_OPENAI_API_KEY'):
+    api_keys_found.append('OpenAI')
+if os.getenv('SIZECOMPARATOR_ANTHROPIC_API_KEY'):
+    api_keys_found.append('Anthropic')
+if os.getenv('SIZECOMPARATOR_XAI_API_KEY'):
+    api_keys_found.append('X.AI')
+
+if api_keys_found:
+    print(f"✓ Found API keys for: {', '.join(api_keys_found)}")
+else:
+    print("⚠️  WARNING: No AI provider API keys found!")
+    print("   The application will use fallback responses instead of AI-generated ones.")
+    print("   To enable AI responses, add at least one API key to your .env file:")
+    print("   - SIZECOMPARATOR_OPENAI_API_KEY")
+    print("   - SIZECOMPARATOR_ANTHROPIC_API_KEY")
+    print("   - SIZECOMPARATOR_XAI_API_KEY")
+
+# Add project root to Python path to ensure proper imports
+project_root = Path(__file__).parent.absolute()
+sys.path.insert(0, str(project_root))
+
+# Set PYTHONPATH environment variable as well
+os.environ['PYTHONPATH'] = str(project_root)
 
 if __name__ == "__main__":
     print("🚀 Starting SizeComparator Unified Server")
     print("=" * 50)
     
     try:
-        # Import and create the application
-        from core.environment import EnvironmentManager
-        from api.unified_app import create_unified_app, ServiceMode
+        # Now we can import from src directly
+        from src.core.environment import EnvironmentManager
+        from src.api.unified_app import create_unified_app, ServiceMode
         
         # Create environment manager
         env_manager = EnvironmentManager()
@@ -32,13 +70,17 @@ if __name__ == "__main__":
             print(f"   • {mode.value}: {mode.name}")
         
         # Start the server
+        # Determine port
+        import sys
+        port = 8001 if len(sys.argv) > 1 and sys.argv[1] == "--port-8001" else 8000
+        
         print("\n🚀 Starting server...")
-        print("🌐 Server will be available at:")
-        print("   • Main API: http://localhost:8000/api/compare")
-        print("   • Health check: http://localhost:8000/health")
-        print("   • API status: http://localhost:8000/api/status")
-        print("   • API docs: http://localhost:8000/docs")
-        print("   • Demo data: http://localhost:8000/api/demo")
+        print(f"🌐 Server will be available at:")
+        print(f"   • Main API: http://localhost:{port}/api/compare")
+        print(f"   • Health check: http://localhost:{port}/health")
+        print(f"   • API status: http://localhost:{port}/api/status")
+        print(f"   • API docs: http://localhost:{port}/docs")
+        print(f"   • Demo data: http://localhost:{port}/api/demo")
         
         print("\n📋 Example requests:")
         print("   • Basic mode: POST /api/compare?service_mode=basic")
@@ -54,11 +96,12 @@ if __name__ == "__main__":
         # Import and start uvicorn
         import uvicorn
         
-        # Run the server
+        # Run the server (port already determined above)
+        port = 8001 if len(sys.argv) > 1 and sys.argv[1] == "--port-8001" else 8000
         uvicorn.run(
             app,
             host="0.0.0.0",
-            port=8000,
+            port=port,
             log_level="info",
             access_log=True
         )

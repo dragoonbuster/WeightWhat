@@ -17,7 +17,7 @@ from fastapi import APIRouter, Depends, HTTPException, Response
 import psutil
 
 from ...models.responses import HealthCheckResponse, ReadinessResponse, ReadinessCheck
-from ...core.config import ConfigLoader
+from ...core.simple_config import SimpleConfig
 from ..main import (
     get_app_state,
     get_config_service,
@@ -44,7 +44,7 @@ health_router = APIRouter()
     }
 )
 async def health_check(
-    config_service: ConfigLoader = Depends(get_config_service)
+    config_service: SimpleConfig = Depends(get_config_service)
 ) -> HealthCheckResponse:
     """
     Basic health check endpoint for liveness probes.
@@ -163,7 +163,7 @@ async def health_check(
 )
 async def readiness_check(
     cache_service = Depends(get_cache_service),
-    config_service: ConfigLoader = Depends(get_config_service),
+    config_service: SimpleConfig = Depends(get_config_service),
     ai_provider_factory = Depends(get_ai_provider_factory)
 ) -> ReadinessResponse:
     """
@@ -433,7 +433,7 @@ async def readiness_check(
 )
 async def detailed_health_check(
     cache_service = Depends(get_cache_service),
-    config_service: ConfigLoader = Depends(get_config_service),
+    config_service: SimpleConfig = Depends(get_config_service),
     ai_provider_factory = Depends(get_ai_provider_factory)
 ) -> Dict[str, Any]:
     """
