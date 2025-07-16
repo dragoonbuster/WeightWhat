@@ -1,0 +1,62 @@
+/* Theme Variables - For easy customization and overlays */
+
+:root {
+    /* Colors */
+    --primary-color: #333;
+    --secondary-color: #555;
+    --background-color: white;
+    --surface-color: #f9f9f9;
+    --border-color: #e0e0e0;
+    --text-primary: #333;
+    --text-secondary: #666;
+    --text-muted: #999;
+    
+    /* Spacing */
+    --spacing-xs: 5px;
+    --spacing-sm: 10px;
+    --spacing-md: 15px;
+    --spacing-lg: 20px;
+    --spacing-xl: 30px;
+    
+    /* Borders */
+    --border-radius: 8px;
+    --border-radius-sm: 4px;
+    --border-radius-lg: 15px;
+    
+    /* Shadows */
+    --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+    --shadow-lg: 0 8px 24px rgba(0,0,0,0.2);
+    
+    /* Typography */
+    --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    --font-size-sm: 0.9em;
+    --font-size-base: 1em;
+    --font-size-lg: 1.1em;
+    --font-size-xl: 1.3em;
+    --font-size-heading: 2.5em;
+}
+
+/* Dark Theme (example overlay) */
+[data-theme="dark"] {
+    --primary-color: #f0f0f0;
+    --secondary-color: #ccc;
+    --background-color: #1a1a1a;
+    --surface-color: #2a2a2a;
+    --border-color: #444;
+    --text-primary: #f0f0f0;
+    --text-secondary: #ccc;
+    --text-muted: #999;
+}
+
+/* Colorful Theme (example overlay) */
+[data-theme="colorful"] {
+    --primary-color: #667eea;
+    --secondary-color: #764ba2;
+    --background-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --surface-color: rgba(255,255,255,0.1);
+    --border-color: rgba(255,255,255,0.3);
+    --text-primary: white;
+    --text-secondary: rgba(255,255,255,0.9);
+    --text-muted: rgba(255,255,255,0.7);
+}

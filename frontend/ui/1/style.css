@@ -1,0 +1,295 @@
+/* Variation 12: Retro Gaming Theme */
+
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+}
+
+body {
+    background: #0f0f0f;
+    color: #ffffff;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 12px;
+    line-height: 2;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* Animated pixel background */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        repeating-linear-gradient(
+            0deg,
+            #ff00ff 0px,
+            #ff00ff 2px,
+            #00ffff 2px,
+            #00ffff 4px
+        );
+    opacity: 0.05;
+    animation: scrollBackground 10s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes scrollBackground {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(4px); }
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    position: relative;
+    z-index: 2;
+    background: #1a1a1a;
+    border: 4px solid #fff;
+    box-shadow: 
+        4px 4px 0 #ff00ff,
+        8px 8px 0 #00ffff,
+        12px 12px 0 #ffff00;
+}
+
+h1 {
+    font-size: 2em;
+    text-align: center;
+    margin-bottom: 30px;
+    text-transform: uppercase;
+    color: #ffff00;
+    text-shadow: 
+        2px 2px 0 #ff00ff,
+        4px 4px 0 #00ffff;
+    animation: rainbow 3s linear infinite;
+}
+
+@keyframes rainbow {
+    0% { color: #ffff00; }
+    33% { color: #ff00ff; }
+    66% { color: #00ffff; }
+    100% { color: #ffff00; }
+}
+
+.examples {
+    background: #2a2a2a;
+    border: 3px solid #fff;
+    padding: 15px;
+    margin-bottom: 20px;
+    position: relative;
+    box-shadow: 3px 3px 0 #ff00ff;
+}
+
+.examples strong {
+    color: #00ff00;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.example-item {
+    display: inline-block;
+    margin: 5px;
+    padding: 8px 12px;
+    background: #ff00ff;
+    border: 2px solid #fff;
+    cursor: pointer;
+    transition: all 0.1s;
+    text-decoration: none;
+    color: #fff;
+    font-size: 10px;
+    position: relative;
+}
+
+.example-item:hover {
+    background: #00ffff;
+    transform: translate(-2px, -2px);
+    box-shadow: 2px 2px 0 #000;
+}
+
+.example-item:active {
+    transform: translate(0, 0);
+    box-shadow: none;
+}
+
+.input-group {
+    margin-bottom: 20px;
+    position: relative;
+}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+    color: #00ff00;
+    text-transform: uppercase;
+    font-size: 10px;
+}
+
+input[type="text"], select {
+    width: 100%;
+    padding: 15px;
+    background: #2a2a2a;
+    border: 3px solid #fff;
+    color: #fff;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 10px;
+    transition: all 0.1s;
+}
+
+input[type="text"]:focus, select:focus {
+    outline: none;
+    border-color: #ffff00;
+    box-shadow: 0 0 0 3px #ff00ff;
+}
+
+input[type="text"]::placeholder {
+    color: #666;
+    font-size: 8px;
+}
+
+select {
+    cursor: pointer;
+}
+
+select option {
+    background: #1a1a1a;
+    color: #fff;
+    padding: 10px;
+}
+
+.comparison-buttons {
+    text-align: center;
+    margin: 30px 0;
+}
+
+button {
+    background: linear-gradient(to bottom, #ff6b6b 0%, #ee5a24 100%);
+    color: #fff;
+    border: 3px solid #fff;
+    padding: 15px 40px;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 14px;
+    cursor: pointer;
+    text-transform: uppercase;
+    position: relative;
+    transition: all 0.1s;
+    box-shadow: 
+        0 6px 0 #c44133,
+        0 9px 3px rgba(0, 0, 0, 0.3);
+}
+
+button:hover {
+    transform: translateY(2px);
+    box-shadow: 
+        0 4px 0 #c44133,
+        0 7px 3px rgba(0, 0, 0, 0.3);
+}
+
+button:active {
+    transform: translateY(4px);
+    box-shadow: 
+        0 2px 0 #c44133,
+        0 5px 3px rgba(0, 0, 0, 0.3);
+}
+
+#result {
+    margin-top: 30px;
+    padding: 20px;
+    background: #2a2a2a;
+    border: 3px solid #fff;
+    min-height: 120px;
+    position: relative;
+    font-size: 10px;
+    line-height: 1.8;
+    box-shadow: 3px 3px 0 #00ffff;
+}
+
+#result::before {
+    content: "RESULT:";
+    display: block;
+    margin-bottom: 10px;
+    color: #ffff00;
+    font-size: 12px;
+    animation: blink 1s steps(2) infinite;
+}
+
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+#result:empty::after {
+    content: "Press START to begin!";
+    color: #666;
+    font-style: normal;
+}
+
+/* Loading animation */
+#result.loading::after {
+    content: "";
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #fff;
+    border-top-color: transparent;
+    border-radius: 0;
+    animation: pixelSpin 0.5s steps(4) infinite;
+    margin-left: 10px;
+}
+
+@keyframes pixelSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Error state */
+#result.error {
+    border-color: #ff0000;
+    background: #3a1a1a;
+    box-shadow: 3px 3px 0 #ff0000;
+}
+
+#result.error::before {
+    content: "GAME OVER:";
+    color: #ff0000;
+}
+
+/* Success state */
+#result.success {
+    animation: powerUp 0.5s;
+}
+
+@keyframes powerUp {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* Coin counter decoration */
+.container::before {
+    content: "SCORE: 000000";
+    position: absolute;
+    top: -25px;
+    right: 20px;
+    color: #ffff00;
+    font-size: 10px;
+}
+
+/* Lives decoration */
+.container::after {
+    content: "♥ ♥ ♥";
+    position: absolute;
+    top: -25px;
+    left: 20px;
+    color: #ff0000;
+    font-size: 14px;
+}
