@@ -157,12 +157,7 @@ class PersistentCounter:
             logger.info(f"File backup updated with counter: {value}")
         except Exception as e:
             logger.warning(f"Failed to update file backup: {e}")
-
-
-# Global instance
-_counter_instance: Optional[PersistentCounter] = None
-
-
+    
     async def _migrate_from_old_locations(self) -> int:
         """Try to find and migrate counter from old locations"""
         old_locations = [
@@ -191,6 +186,10 @@ _counter_instance: Optional[PersistentCounter] = None
                     logger.debug(f"Could not read old counter from {old_path}: {e}")
         
         return 0
+
+
+# Global instance
+_counter_instance: Optional[PersistentCounter] = None
 
 
 def get_persistent_counter(redis_client=None) -> PersistentCounter:
