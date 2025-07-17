@@ -2,9 +2,10 @@
 MVP Models for SizeComparator - Simple request/response for demo
 """
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 from typing import Optional, Literal
 from datetime import datetime
+from ..utils.emoji_stripper import strip_emojis_and_symbols
 
 class MVPComparisonRequest(BaseModel):
     """Simple MVP request - just weight input"""
@@ -23,6 +24,13 @@ class MVPComparisonResponse(BaseModel):
         description="AI-generated comparison text",
         example="5.5 kilograms is about the weight of a bowling ball or a house cat."
     )
+    
+    @validator('comparison_text', pre=True)
+    def strip_emojis(cls, v):
+        """Remove all emojis and symbols from comparison text"""
+        if isinstance(v, str):
+            return strip_emojis_and_symbols(v)
+        return v
     weight_processed: str = Field(
         ...,
         description="Processed weight in standard format", 

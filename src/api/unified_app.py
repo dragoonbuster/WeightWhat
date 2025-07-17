@@ -290,18 +290,16 @@ class UnifiedSizeComparatorApp:
         @self.app.get("/api/counter")
         async def get_global_counter():
             """Get global weight comparisons counter"""
-            from ..services.persistent_counter import get_persistent_counter
-            
             try:
-                counter = get_persistent_counter()
-                counter_value = await counter.get()
+                counter_value = await self.counter.get()
+                logger.info(f"Counter API called, returning value: {counter_value}")
                 
                 return {
                     "count": counter_value,
                     "timestamp": datetime.utcnow().isoformat()
                 }
             except Exception as e:
-                logger.warning(f"Error getting counter: {e}")
+                logger.warning(f"Error getting counter: {e}", exc_info=True)
                 return {
                     "count": 0,
                     "timestamp": datetime.utcnow().isoformat(),
@@ -361,11 +359,10 @@ class UnifiedSizeComparatorApp:
                 
                 # Increment global counter on successful comparison
                 try:
-                    from ..services.persistent_counter import get_persistent_counter
-                    counter = get_persistent_counter()
-                    await counter.increment()
+                    new_count = await self.counter.increment()
+                    logger.info(f"Global counter incremented to: {new_count}")
                 except Exception as e:
-                    logger.warning(f"Failed to increment global counter: {e}")
+                    logger.warning(f"Failed to increment global counter: {e}", exc_info=True)
                 
                 return result
                 
