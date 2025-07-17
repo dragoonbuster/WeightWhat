@@ -26,16 +26,38 @@ class PersistentCounter:
             storage_path: Path to local file storage (defaults to /tmp/sizecomparator_counter.json)
         """
         self.redis_client = redis_client
-        # Use a more permanent location
+        # Use a more permanent location with multiple fallbacks
         if storage_path:
             self.storage_path = storage_path
         else:
-            # Try to use /var/lib/weightwhat first, fall back to /tmp
-            var_lib_path = Path("/var/lib/weightwhat")
-            if var_lib_path.exists() and var_lib_path.is_dir():
-                self.storage_path = var_lib_path / "counter.json"
-            else:
+            # Try multiple locations in order of preference
+            possible_paths = [
+                Path("/var/lib/weightwhat/counter.json"),
+                Path("/opt/WeightWhat/data/counter.json"),
+                Path.home() / ".weightwhat" / "counter.json",
+                Path("/tmp/sizecomparator_counter.json")
+            ]
+            
+            # Find the first writable location
+            self.storage_path = None
+            for path in possible_paths:
+                try:
+                    # Ensure parent directory exists
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    # Test if we can write to this location
+                    test_file = path.parent / ".write_test"
+                    test_file.touch()
+                    test_file.unlink()
+                    self.storage_path = path
+                    logger.info(f"Using counter storage path: {path}")
+                    break
+                except Exception as e:
+                    logger.debug(f"Cannot use {path}: {e}")
+            
+            if not self.storage_path:
+                # Final fallback
                 self.storage_path = Path("/tmp/sizecomparator_counter.json")
+                logger.warning(f"Using temporary storage path: {self.storage_path}")
         self.redis_key = "sizecomparator:global_weight_comparisons_count"
         self._local_cache = None
         self._lock = asyncio.Lock()
@@ -61,6 +83,11 @@ class PersistentCounter:
                     logger.info(f"Counter from file {self.storage_path}: {count}")
                     return count
                 else:
+                    # Try to find and migrate from old locations
+                    count = await self._migrate_from_old_locations()
+                    if count > 0:
+                        logger.info(f"Migrated counter value: {count}")
+                        return count
                     logger.info(f"Counter file {self.storage_path} does not exist, returning 0")
             except Exception as e:
                 logger.warning(f"File read failed from {self.storage_path}: {e}, returning 0")
@@ -134,6 +161,36 @@ class PersistentCounter:
 
 # Global instance
 _counter_instance: Optional[PersistentCounter] = None
+
+
+    async def _migrate_from_old_locations(self) -> int:
+        """Try to find and migrate counter from old locations"""
+        old_locations = [
+            Path("/var/lib/weightwhat/counter.json"),
+            Path("/opt/WeightWhat/data/counter.json"),
+            Path.home() / ".weightwhat" / "counter.json",
+            Path("/tmp/sizecomparator_counter.json")
+        ]
+        
+        for old_path in old_locations:
+            if old_path != self.storage_path and old_path.exists():
+                try:
+                    data = json.loads(old_path.read_text())
+                    count = data.get("count", 0)
+                    if count > 0:
+                        # Migrate to new location
+                        await self.set(count)
+                        logger.info(f"Migrated counter from {old_path} to {self.storage_path}")
+                        # Keep old file as backup but rename it
+                        try:
+                            old_path.rename(old_path.with_suffix('.json.backup'))
+                        except:
+                            pass
+                        return count
+                except Exception as e:
+                    logger.debug(f"Could not read old counter from {old_path}: {e}")
+        
+        return 0
 
 
 def get_persistent_counter(redis_client=None) -> PersistentCounter:
