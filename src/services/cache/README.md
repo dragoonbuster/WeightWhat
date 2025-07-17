@@ -4,25 +4,25 @@ A comprehensive caching layer built on Redis that dramatically improves applicat
 
 ## Features
 
-### 🚀 Performance
+### Performance
 - **Sub-100ms operations** with 90%+ cache hit rates
 - **Pipeline operations** for efficient batch processing
 - **Connection pooling** with health checks and automatic reconnection
 - **Circuit breaker protection** for fault tolerance
 
-### 🎯 AI Integration
+### AI Integration
 - **AI response caching** with intelligent key generation
 - **Cost tracking** and savings metrics
 - **Provider fallback** support with cache consistency
 - **Template-based** caching with variable normalization
 
-### 🏗️ Architecture
+### Architecture
 - **Multiple deployment modes**: Standalone, Sentinel, Cluster
 - **Type-safe serialization** with Pydantic model support
 - **Hierarchical key structure** for efficient invalidation
 - **Comprehensive monitoring** and metrics collection
 
-### 🔧 Developer Experience
+### Developer Experience
 - **Decorators** for automatic caching
 - **Environment-based configuration** with secure defaults
 - **Graceful degradation** when cache is unavailable

@@ -2,165 +2,73 @@
 
 A web application that converts weight measurements into relatable, humorous comparisons.
 
-## Overview
+## What It Does
 
-Weight, What? transforms mundane weight measurements (kilograms, pounds, etc.) into entertaining comparisons that people can actually understand. Instead of "5 kg," users get "about as heavy as a bowling ball or a house cat."
+Weight, What? takes any weight measurement and instantly converts it into comparisons people can actually understand and laugh about. Instead of abstract numbers like "75 kg" or "165 lbs", you get vivid comparisons like:
+
+- "That's about as heavy as a golden retriever"
+- "Roughly the weight of 15,000 bees"
+- "Like carrying around a small motorcycle"
+
+The app supports multiple weight units (kg, lbs, g, oz, tons) and provides instant, entertaining comparisons that make weights tangible and fun.
 
 ## Features
 
-- Instant weight conversions to relatable objects
-- Support for multiple weight units (kg, lbs, g, oz, tons)
-- Two deployment options: static (free) or AI-powered ($6/month)
-- Clean, retro terminal-inspired interface
-- Mobile-responsive design
-- Optional AI integration for dynamic comparisons
+- **Instant Comparisons**: Type any weight and get immediate, relatable comparisons
+- **Multiple Units**: Supports kilograms, pounds, grams, ounces, and tons
+- **Two Modes**:
+  - Static mode with pre-written humorous comparisons
+  - AI-powered mode for dynamic, creative comparisons
+- **Clean Interface**: Retro terminal-inspired design that's easy to use
+- **Mobile Friendly**: Works great on phones, tablets, and desktops
 
-## Quick Start
+## How It Works
 
-### Option 1: Static Version (No Backend Required)
+### Static Version
+The simple HTML version includes a curated collection of funny comparisons for common weight ranges. It works entirely in your browser with no server required.
 
-The simplest way to use Weight, What? is with the standalone HTML file:
+### AI-Powered Version
+The full version uses AI language models (OpenAI GPT-4, Anthropic Claude, or X.AI Grok) to generate creative, contextual comparisons on the fly. Each comparison is unique and tailored to the specific weight entered.
 
-```bash
-# Open directly in browser
-open frontend/simple.html
+## Examples
 
-# Or serve locally
-python -m http.server 8000
-# Navigate to http://localhost:8000/frontend/simple.html
-```
+**Input**: 5 kg  
+**Output**: "That's about as heavy as a bowling ball or a house cat who's been hitting the treats pretty hard"
 
-### Option 2: Full Application with AI
+**Input**: 200 lbs  
+**Output**: "That's roughly the weight of a full-grown kangaroo, or what it feels like carrying your entire wardrobe at once"
 
-For dynamic AI-powered comparisons:
+**Input**: 1 ton  
+**Output**: "That's about as heavy as a small car, or approximately 400,000 quarters if you're planning the world's worst piggy bank"
 
-```bash
-# Install dependencies
-pip install -r requirements.txt
+## Technical Details
 
-# Configure environment
-cp .env.example .env
-# Add your API keys to .env
-
-# Run the application
-python src/api/unified_app.py
-
-# Access at http://localhost:8000
-```
-
-## Deployment
-
-### Static Deployment (Free)
-
-Deploy the static version to any static hosting service:
-
-**GitHub Pages:**
-```bash
-# Push to GitHub
-# Enable GitHub Pages in repository settings
-# Access at: https://[username].github.io/WeightWhat/frontend/simple.html
-```
-
-**Netlify/Vercel:**
-Simply drag and drop the `frontend` folder.
-
-### VPS Deployment with AI
-
-For the full experience with AI-powered comparisons:
-
-```bash
-# On a fresh Ubuntu VPS
-wget -O - https://raw.githubusercontent.com/dragoonbuster/WeightWhat/main/quick-vps-setup.sh | bash
-```
-
-See `DEPLOYMENT.md` for detailed instructions.
-
-## Project Structure
-
-```
-WeightWhat/
-├── frontend/               # Frontend files
-│   ├── simple.html        # Standalone static version
-│   ├── index.html         # Full frontend (requires backend)
-│   ├── css/               # Stylesheets
-│   └── js/                # JavaScript files
-├── src/                   # Backend source code
-│   ├── api/               # FastAPI application
-│   ├── providers/         # AI provider integrations
-│   └── services/          # Business logic
-├── tests/                 # Test suite
-├── quick-vps-setup.sh     # Automated VPS deployment
-└── requirements.txt       # Python dependencies
-```
-
-## API Documentation
-
-When running the full application, the API is available at:
-
-- `POST /api/v1/compare` - Get weight comparisons
-- `GET /api/v1/providers` - List available AI providers
-- `GET /health` - Health check
-- `GET /docs` - Interactive API documentation
-
-### Example Request
-
-```bash
-curl -X POST http://localhost:8000/api/v1/compare \
-  -H "Content-Type: application/json" \
-  -d '{
-    "weight": 75,
-    "unit": "kg",
-    "provider": "openai"
-  }'
-```
-
-## Configuration
-
-The application uses environment variables for configuration. See `.env.example` for all available options:
-
-- `SIZECOMPARATOR_OPENAI_API_KEY` - OpenAI API key
-- `SIZECOMPARATOR_ANTHROPIC_API_KEY` - Anthropic API key
-- `SIZECOMPARATOR_XAI_API_KEY` - X.AI API key
-- `SIZECOMPARATOR_DEFAULT_PROVIDER` - Default AI provider
-- `SIZECOMPARATOR_CACHE_TYPE` - Cache backend (memory/redis)
+- **Frontend**: Vanilla HTML/CSS/JavaScript (no build tools required)
+- **Backend**: FastAPI (Python) with async support
+- **AI Integration**: Supports multiple providers with fallback options
+- **Caching**: Redis-based caching to improve response times and reduce API costs
+- **Architecture**: Clean separation between static and dynamic versions
 
 ## Development
 
-### Running Tests
+To run locally:
 
 ```bash
-# Run all tests
-pytest
+# Static version (no setup required)
+python -m http.server 8000
+# Open http://localhost:8000/frontend/simple.html
 
-# Run with coverage
-pytest --cov=src tests/
+# Full version with AI
+pip install -r requirements.txt
+cp .env.example .env
+# Add your API keys to .env
+python src/api/unified_app.py
 ```
 
-### Code Style
+## Why?
 
-The project follows PEP 8 style guidelines. Format code with:
-
-```bash
-# Format code
-black src/ tests/
-
-# Check linting
-pylint src/
-```
-
-## Contributing
-
-This is a simple gag site meant for entertainment. Contributions should maintain the project's simplicity and humor. Please:
-
-1. Keep features simple and focused on the core concept
-2. Maintain the clean, professional codebase
-3. Avoid over-engineering or adding unnecessary complexity
-4. Test your changes thoroughly
+Because weight measurements are boring and life is too short not to know that your laptop weighs about the same as a chihuahua.
 
 ## License
 
-MIT License - See LICENSE file for details.
-
-## Acknowledgments
-
-Built with FastAPI, OpenAI GPT-4, and a healthy sense of humor about everyday measurements.
+MIT - Do whatever makes you happy.

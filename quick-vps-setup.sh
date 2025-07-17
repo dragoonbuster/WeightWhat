@@ -4,19 +4,19 @@
 
 set -e
 
-echo "🚀 Weight What Quick VPS Setup"
+echo "Weight What Quick VPS Setup"
 echo "=============================="
 
 # Update system
-echo "📦 Updating system packages..."
+echo "Updating system packages..."
 apt update && apt upgrade -y
 
 # Install requirements
-echo "🔧 Installing Python, Nginx, and Git..."
+echo "Installing Python, Nginx, and Git..."
 apt install -y python3-pip python3-venv git nginx certbot python3-certbot-nginx
 
 # Clone repository
-echo "📥 Cloning repository..."
+echo "Cloning repository..."
 cd /opt
 if [ -d "WeightWhat" ]; then
     echo "Repository already exists, pulling latest..."
@@ -28,7 +28,7 @@ else
 fi
 
 # Setup Python environment
-echo "🐍 Setting up Python environment..."
+echo "Setting up Python environment..."
 python3 -m venv venv
 source venv/bin/activate
 pip install --upgrade pip
@@ -36,7 +36,7 @@ pip install fastapi uvicorn python-dotenv openai gunicorn httpx anthropic
 
 # Create .env from example if it doesn't exist
 if [ ! -f .env ]; then
-    echo "📝 Creating .env file from .env.example..."
+    echo "Creating .env file from .env.example..."
     cp .env.example .env
     
     # Update for production
@@ -51,7 +51,7 @@ if [ ! -f .env ]; then
 fi
 
 # Create systemd service
-echo "⚙️ Creating systemd service..."
+echo "Creating systemd service..."
 cat > /etc/systemd/system/weightwhat.service << 'EOF'
 [Unit]
 Description=Weight What Application
@@ -81,7 +81,7 @@ systemctl enable weightwhat
 systemctl start weightwhat
 
 # Setup Nginx
-echo "🌐 Configuring Nginx..."
+echo "Configuring Nginx..."
 cat > /etc/nginx/sites-available/weightwhat << 'EOF'
 server {
     listen 80;
@@ -104,7 +104,7 @@ rm -f /etc/nginx/sites-enabled/default
 nginx -t && systemctl reload nginx
 
 echo ""
-echo "✅ Setup complete!"
+echo "Setup complete!"
 echo ""
 echo "Next steps:"
 echo "1. Edit /opt/WeightWhat/.env to add your OpenAI API key"

@@ -101,6 +101,10 @@ site/
 *.bak
 *.backup
 
+# Deployment scripts
+quick-vps-setup.sh
+DEPLOYMENT.md
+
 # API Keys and Secrets (extra safety)
 *api_key*
 *secret*
