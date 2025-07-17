@@ -18,13 +18,13 @@ apt install -y python3-pip python3-venv git nginx certbot python3-certbot-nginx
 # Clone repository
 echo "📥 Cloning repository..."
 cd /opt
-if [ -d "SizeComparator" ]; then
+if [ -d "WeightWhat" ]; then
     echo "Repository already exists, pulling latest..."
-    cd SizeComparator
+    cd WeightWhat
     git pull
 else
-    git clone https://github.com/yourusername/SizeComparator.git
-    cd SizeComparator
+    git clone https://github.com/dragoonbuster/WeightWhat.git
+    cd WeightWhat
 fi
 
 # Setup Python environment
@@ -45,7 +45,7 @@ if [ ! -f .env ]; then
     sed -i 's|SIZECOMPARATOR_CORS_ORIGINS=.*|SIZECOMPARATOR_CORS_ORIGINS=https://weightwhat.xyz,https://www.weightwhat.xyz|' .env
     
     echo ""
-    echo "⚠️  IMPORTANT: Edit /opt/SizeComparator/.env to add your API key(s)!"
+    echo "IMPORTANT: Edit /opt/WeightWhat/.env to add your API key(s)!"
     echo "   You can use OpenAI, Anthropic, or X.AI - just add at least one."
     echo ""
 fi
@@ -60,9 +60,9 @@ After=network.target
 [Service]
 Type=exec
 User=root
-WorkingDirectory=/opt/SizeComparator
-Environment="PATH=/opt/SizeComparator/venv/bin"
-ExecStart=/opt/SizeComparator/venv/bin/gunicorn src.api.unified_app:create_unified_app \
+WorkingDirectory=/opt/WeightWhat
+Environment="PATH=/opt/WeightWhat/venv/bin"
+ExecStart=/opt/WeightWhat/venv/bin/gunicorn src.api.unified_app:create_unified_app \
     --factory \
     --bind 127.0.0.1:8000 \
     --workers 2 \
@@ -107,7 +107,7 @@ echo ""
 echo "✅ Setup complete!"
 echo ""
 echo "Next steps:"
-echo "1. Edit /opt/SizeComparator/.env to add your OpenAI API key"
+echo "1. Edit /opt/WeightWhat/.env to add your OpenAI API key"
 echo "2. Point weightwhat.xyz to this server's IP in Namecheap"
 echo "3. Run: certbot --nginx -d weightwhat.xyz -d www.weightwhat.xyz"
 echo ""

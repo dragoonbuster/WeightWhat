@@ -10,7 +10,7 @@ The simplest option - just funny pre-written comparisons.
 ```bash
 1. Push to GitHub
 2. Settings → Pages → Source: main branch, /frontend folder
-3. Your site: https://username.github.io/SizeComparator/simple.html
+3. Your site: https://username.github.io/WeightWhat/simple.html
 ```
 
 ### Netlify Drop
@@ -31,11 +31,11 @@ Get real AI responses with your API keys kept secret.
 ```bash
 # 1. Get a $6/month VPS (DigitalOcean, Vultr, Linode)
 # 2. SSH in and run:
-wget https://raw.githubusercontent.com/yourusername/SizeComparator/main/quick-vps-setup.sh
+wget https://raw.githubusercontent.com/dragoonbuster/WeightWhat/main/quick-vps-setup.sh
 chmod +x quick-vps-setup.sh
 ./quick-vps-setup.sh
 
-# 3. Edit /opt/SizeComparator/.env and add your API key(s)
+# 3. Edit /opt/WeightWhat/.env and add your API key(s)
 # 4. Point weightwhat.xyz to your server IP in Namecheap
 # 5. Get SSL: certbot --nginx -d weightwhat.xyz -d www.weightwhat.xyz
 ```
@@ -63,7 +63,7 @@ systemctl status weightwhat
 journalctl -u weightwhat -f
 
 # Update code
-cd /opt/SizeComparator && git pull && systemctl restart weightwhat
+cd /opt/WeightWhat && git pull && systemctl restart weightwhat
 ```
 
 That's it! No Docker, no complexity, just a fun site that works.
