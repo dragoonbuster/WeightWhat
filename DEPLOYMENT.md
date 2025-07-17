@@ -35,7 +35,7 @@ wget https://raw.githubusercontent.com/yourusername/SizeComparator/main/quick-vp
 chmod +x quick-vps-setup.sh
 ./quick-vps-setup.sh
 
-# 3. Edit /opt/SizeComparator/.env and add your OpenAI key
+# 3. Edit /opt/SizeComparator/.env and add your API key(s)
 # 4. Point weightwhat.xyz to your server IP in Namecheap
 # 5. Get SSL: certbot --nginx -d weightwhat.xyz -d www.weightwhat.xyz
 ```

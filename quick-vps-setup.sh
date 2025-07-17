@@ -34,17 +34,19 @@ source venv/bin/activate
 pip install --upgrade pip
 pip install fastapi uvicorn python-dotenv openai gunicorn httpx anthropic
 
-# Create .env if it doesn't exist
+# Create .env from example if it doesn't exist
 if [ ! -f .env ]; then
-    echo "📝 Creating .env file..."
-    cat > .env << 'EOF'
-SIZECOMPARATOR_ENV=production
-SIZECOMPARATOR_OPENAI_API_KEY=sk-your-openai-key-here
-SIZECOMPARATOR_SECRET_KEY=change-this-to-random-string
-SIZECOMPARATOR_CORS_ORIGINS=https://weightwhat.xyz,https://www.weightwhat.xyz
-EOF
+    echo "📝 Creating .env file from .env.example..."
+    cp .env.example .env
+    
+    # Update for production
+    sed -i 's/SIZECOMPARATOR_ENV=development/SIZECOMPARATOR_ENV=production/' .env
+    sed -i 's/SIZECOMPARATOR_DEBUG=true/SIZECOMPARATOR_DEBUG=false/' .env
+    sed -i 's|SIZECOMPARATOR_CORS_ORIGINS=.*|SIZECOMPARATOR_CORS_ORIGINS=https://weightwhat.xyz,https://www.weightwhat.xyz|' .env
+    
     echo ""
-    echo "⚠️  IMPORTANT: Edit /opt/SizeComparator/.env to add your API key!"
+    echo "⚠️  IMPORTANT: Edit /opt/SizeComparator/.env to add your API key(s)!"
+    echo "   You can use OpenAI, Anthropic, or X.AI - just add at least one."
     echo ""
 fi
 
