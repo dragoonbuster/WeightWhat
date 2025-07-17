@@ -282,6 +282,28 @@ class UnifiedSizeComparatorApp:
                 "uptime_seconds": (datetime.utcnow() - self._startup_time).total_seconds() if self._startup_time else 0
             }
         
+        # Global counter endpoint
+        @self.app.get("/api/counter")
+        async def get_global_counter():
+            """Get global weight comparisons counter"""
+            from ..services.persistent_counter import get_persistent_counter
+            
+            try:
+                counter = get_persistent_counter()
+                counter_value = await counter.get()
+                
+                return {
+                    "count": counter_value,
+                    "timestamp": datetime.utcnow().isoformat()
+                }
+            except Exception as e:
+                logger.warning(f"Error getting counter: {e}")
+                return {
+                    "count": 0,
+                    "timestamp": datetime.utcnow().isoformat(),
+                    "error": "Counter temporarily unavailable"
+                }
+        
         # Main unified comparison endpoint
         @self.app.post("/api/compare", response_model=MVPComparisonResponse)
         async def unified_compare(
@@ -332,6 +354,14 @@ class UnifiedSizeComparatorApp:
                 
                 # Process request
                 result = await service.create_comparison(request_data)
+                
+                # Increment global counter on successful comparison
+                try:
+                    from ..services.persistent_counter import get_persistent_counter
+                    counter = get_persistent_counter()
+                    await counter.increment()
+                except Exception as e:
+                    logger.warning(f"Failed to increment global counter: {e}")
                 
                 return result
                 

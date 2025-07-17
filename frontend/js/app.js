@@ -29,20 +29,33 @@ class SizeComparatorApp {
      * Initialize the comparison counter
      */
     initializeCounter() {
-        this.loadCounter();
-        this.updateCounterDisplay();
+        this.loadGlobalCounter();
+        // Refresh counter periodically
+        setInterval(() => this.loadGlobalCounter(), 30000); // Every 30 seconds
     }
 
     /**
-     * Load counter from localStorage
+     * Load counter from API
      */
-    loadCounter() {
-        const savedCounter = localStorage.getItem('weightComparisons');
-        this.comparisonCount = savedCounter ? parseInt(savedCounter, 10) : 0;
+    async loadGlobalCounter() {
+        try {
+            const response = await fetch('/api/counter');
+            if (response.ok) {
+                const data = await response.json();
+                this.comparisonCount = data.count || 0;
+                this.updateCounterDisplay();
+            }
+        } catch (error) {
+            console.error('Failed to load global counter:', error);
+            // Fall back to localStorage if API fails
+            const savedCounter = localStorage.getItem('weightComparisons');
+            this.comparisonCount = savedCounter ? parseInt(savedCounter, 10) : 0;
+            this.updateCounterDisplay();
+        }
     }
 
     /**
-     * Save counter to localStorage
+     * Save counter to localStorage (kept for fallback)
      */
     saveCounter() {
         localStorage.setItem('weightComparisons', this.comparisonCount.toString());
@@ -63,7 +76,7 @@ class SizeComparatorApp {
      */
     incrementCounter() {
         this.comparisonCount++;
-        this.saveCounter();
+        this.saveCounter(); // Keep local backup
         this.updateCounterDisplay();
         
         // Add animation
@@ -74,6 +87,9 @@ class SizeComparatorApp {
                 counterDisplay.classList.remove('increment');
             }, 500);
         }
+        
+        // Reload global counter after a short delay to get updated value
+        setTimeout(() => this.loadGlobalCounter(), 1000);
     }
 
     /**

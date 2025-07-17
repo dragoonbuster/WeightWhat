@@ -290,6 +290,7 @@ async def compare_weights(
             }
         )
         metrics_service.increment("comparison.requests_total", tags={"status": "success"})
+        metrics_service.increment("sizecomparator_weight_comparisons_total")
         
         logger.info(
             "Weight comparison completed successfully",
