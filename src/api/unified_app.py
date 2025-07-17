@@ -64,6 +64,10 @@ class UnifiedSizeComparatorApp:
         self._service_cache: Dict[ServiceMode, BaseComparisonService] = {}
         self._startup_time = None
         
+        # Initialize persistent counter
+        from ..services.persistent_counter import get_persistent_counter
+        self.counter = get_persistent_counter()
+        
         # Configuration
         self.config = self._load_app_config()
         

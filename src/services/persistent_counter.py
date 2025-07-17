@@ -26,7 +26,16 @@ class PersistentCounter:
             storage_path: Path to local file storage (defaults to /tmp/sizecomparator_counter.json)
         """
         self.redis_client = redis_client
-        self.storage_path = storage_path or Path("/tmp/sizecomparator_counter.json")
+        # Use a more permanent location
+        if storage_path:
+            self.storage_path = storage_path
+        else:
+            # Try to use /var/lib/weightwhat first, fall back to /tmp
+            var_lib_path = Path("/var/lib/weightwhat")
+            if var_lib_path.exists() and var_lib_path.is_dir():
+                self.storage_path = var_lib_path / "counter.json"
+            else:
+                self.storage_path = Path("/tmp/sizecomparator_counter.json")
         self.redis_key = "sizecomparator:global_weight_comparisons_count"
         self._local_cache = None
         self._lock = asyncio.Lock()
@@ -39,6 +48,7 @@ class PersistentCounter:
                 try:
                     value = await self.redis_client.get(self.redis_key)
                     if value is not None:
+                        logger.info(f"Counter from Redis: {value}")
                         return int(value)
                 except Exception as e:
                     logger.warning(f"Redis get failed: {e}, falling back to file storage")
@@ -47,9 +57,13 @@ class PersistentCounter:
             try:
                 if self.storage_path.exists():
                     data = json.loads(self.storage_path.read_text())
-                    return data.get("count", 0)
+                    count = data.get("count", 0)
+                    logger.info(f"Counter from file {self.storage_path}: {count}")
+                    return count
+                else:
+                    logger.info(f"Counter file {self.storage_path} does not exist, returning 0")
             except Exception as e:
-                logger.warning(f"File read failed: {e}, returning 0")
+                logger.warning(f"File read failed from {self.storage_path}: {e}, returning 0")
             
             return 0
     
@@ -71,9 +85,14 @@ class PersistentCounter:
                 current = await self.get()
                 new_value = current + 1
                 
+                # Ensure directory exists
+                self.storage_path.parent.mkdir(parents=True, exist_ok=True)
+                
                 # Save to file
-                data = {"count": new_value, "updated_at": str(asyncio.get_event_loop().time())}
+                import time
+                data = {"count": new_value, "updated_at": time.time()}
                 self.storage_path.write_text(json.dumps(data))
+                logger.info(f"Counter incremented to {new_value} and saved to {self.storage_path}")
                 
                 # Try to sync to Redis if available
                 if self.redis_client:
@@ -104,8 +123,11 @@ class PersistentCounter:
     def _update_file_backup(self, value: int) -> None:
         """Update file backup without async (for use in Redis path)"""
         try:
-            data = {"count": value, "updated_at": str(asyncio.get_event_loop().time())}
+            import time
+            self.storage_path.parent.mkdir(parents=True, exist_ok=True)
+            data = {"count": value, "updated_at": time.time()}
             self.storage_path.write_text(json.dumps(data))
+            logger.info(f"File backup updated with counter: {value}")
         except Exception as e:
             logger.warning(f"Failed to update file backup: {e}")
 
