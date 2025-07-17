@@ -18,6 +18,7 @@ from typing import Any, Dict, Optional, Union, List
 from pathlib import Path
 from dataclasses import dataclass
 from enum import Enum
+from dotenv import load_dotenv
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +46,33 @@ class SimpleConfig:
     def __init__(self):
         """Initialize configuration system."""
         self._config: Dict[str, Any] = {}
+        self._load_env_files()
         self._load_environment()
+        
+    def _load_env_files(self):
+        """Load environment files including separate keys file."""
+        # Load main .env file
+        load_dotenv()
+        
+        # Load .env.keys if it exists (for API keys)
+        keys_file = Path('.env.keys')
+        if keys_file.exists():
+            load_dotenv(keys_file)
+            logger.info("Loaded API keys from .env.keys")
+        else:
+            # Try alternative locations
+            alternative_paths = [
+                Path('/opt/WeightWhat/.env.keys'),
+                Path.home() / '.weightwhat' / '.env.keys',
+                Path('/etc/weightwhat/.env.keys')
+            ]
+            for path in alternative_paths:
+                if path.exists():
+                    load_dotenv(path)
+                    logger.info(f"Loaded API keys from {path}")
+                    break
+            else:
+                logger.warning("No .env.keys file found - API keys must be in environment")
         
     def _load_environment(self):
         """Load environment variables and apply defaults."""
@@ -96,6 +123,9 @@ class SimpleConfig:
             'force_basic_service': self._get_env('SIZECOMPARATOR_FORCE_BASIC_SERVICE', False, bool),
             'require_validation': self._get_env('SIZECOMPARATOR_REQUIRE_VALIDATION', True, bool),
             'service_timeout_ms': self._get_env('SIZECOMPARATOR_SERVICE_TIMEOUT_MS', 5000, int),
+            
+            # Prompt configuration
+            'prompt_profile': self._get_env('SIZECOMPARATOR_PROMPT_PROFILE', 'concise', str),
             
             # Security settings
             'secret_key': self._get_env('SIZECOMPARATOR_SECRET_KEY', 'dev-secret-key-change-in-production', str),

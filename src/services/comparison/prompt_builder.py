@@ -12,6 +12,7 @@ from typing import Any, Dict, List, Optional
 from ...core.simple_config import SimpleConfig
 from ...services.weight_processor import WeightItem
 from .types import WeightContext, ComparisonObject
+from .prompt_profiles import PromptProfiles
 
 logger = logging.getLogger(__name__)
 
@@ -41,14 +42,8 @@ class SafetyFilter:
             if term in prompt_lower:
                 raise ValueError(f"Blocked term detected: {term}")
                 
-        # Add safety instructions
-        safety_instructions = """
-Note: Please ensure all comparisons are:
-- Family-friendly and appropriate for all ages
-- Factually accurate and educational
-- Free from potentially offensive content
-- Respectful of all cultures and backgrounds
-"""
+        # Add safety instructions from profile
+        safety_instructions = self._templates.get("safety_instructions", "")
         
         return f"{prompt}\n\n{safety_instructions}"
         
@@ -75,96 +70,13 @@ class PromptBuilder:
         self._config = config
         self._safety_filter = SafetyFilter(config)
         
-        # Load templates
-        self._templates = self._load_templates()
+        # Get prompt profile from config (defaults to 'concise')
+        self._prompt_profile = config.get('prompt_profile', 'concise')
+        logger.info(f"Using prompt profile: {self._prompt_profile}")
         
-    def _load_templates(self) -> Dict[str, str]:
-        """Load prompt templates from configuration"""
+        # Load templates from profile
+        self._templates = PromptProfiles.get_profile(self._prompt_profile)
         
-        return {
-            "default": """
-You are an expert at creating engaging weight comparisons. Given the following weight information, create a vivid and relatable comparison that helps people understand the weight in everyday terms.
-
-Weight to compare: {weight_value} {weight_unit} ({weight_in_kg} kg)
-Weight category: {weight_category}
-Context: {scale_context}
-
-Available comparison objects:
-{comparison_objects_list}
-
-Instructions:
-- Create an engaging comparison using the provided objects
-- Use specific numbers and ratios where helpful
-- Make it relatable and easy to understand
-- Keep it concise but informative (2-3 sentences)
-- Tone: {tone}
-- Style: {comparison_style}
-
-{context_specific_instructions}
-
-Comparison:""",
-
-            "creative": """
-You are a creative writer specializing in weight comparisons. Transform this technical weight measurement into a captivating and memorable comparison.
-
-Weight: {weight_value} {weight_unit} ({weight_in_kg} kg)
-Scale: {scale_context}
-
-Comparison objects to consider:
-{comparison_objects_list}
-
-Creative Guidelines:
-- Use vivid imagery and metaphors
-- Make unexpected but accurate connections
-- Include interesting ratios or multiples
-- Paint a picture that sticks in memory
-- Be playful yet educational
-- 3-4 sentences maximum
-
-{provider_specific_instructions}
-
-Creative comparison:""",
-
-            "technical": """
-You are a technical expert providing precise weight comparisons for an educated audience.
-
-Weight specification: {weight_value} {weight_unit} (equivalent to {weight_in_kg} kg)
-Measurement context: {measurement_context}
-Category: {weight_category}
-
-Reference objects with known weights:
-{comparison_objects_detailed}
-
-Technical requirements:
-- Provide exact ratios and calculations
-- Include relevant scientific context
-- Mention measurement precision
-- Use appropriate technical terminology
-- Be concise but comprehensive
-- Focus on accuracy over creativity
-
-Technical comparison:""",
-
-            "educational": """
-You are an educator creating a weight comparison lesson for students.
-
-Learning objective: Understanding the weight of {weight_value} {weight_unit}
-Weight in standard units: {weight_in_kg} kg
-Real-world context: {scale_context}
-
-Teaching materials (comparison objects):
-{comparison_objects_educational}
-
-Educational approach:
-- Make it age-appropriate and engaging
-- Use familiar objects students know
-- Include simple math when helpful
-- Encourage hands-on understanding
-- Build from known to unknown
-- 2-3 clear sentences
-
-Educational comparison:"""
-        }
         
     async def build_prompt(
         self,
@@ -417,28 +329,29 @@ Educational comparison:"""
             
     def _add_openai_directives(self, prompt: str) -> str:
         """Add OpenAI-specific directives"""
+        adjustments = PromptProfiles.get_provider_adjustments("openai", self._prompt_profile)
+        directive = adjustments.get("provider_specific_instructions", "")
         return f"""{prompt}
 
-Please structure your response clearly and ensure all comparisons are factually accurate.
-Use specific numbers and ratios where applicable."""
+{directive}""" if directive else prompt
 
     def _add_anthropic_style_markers(self, prompt: str) -> str:
         """Add Anthropic-specific style markers"""
+        adjustments = PromptProfiles.get_provider_adjustments("anthropic", self._prompt_profile)
+        guidelines = adjustments.get("provider_specific_instructions", "")
         return f"""<comparison_request>
 {prompt}
 </comparison_request>
 
-<guidelines>
-- Be creative but accurate
-- Use vivid imagery where appropriate
-- Maintain a helpful and engaging tone
-</guidelines>"""
+{guidelines}"""
 
     def _add_conciseness_directive(self, prompt: str) -> str:
         """Add conciseness directive for X.ai"""
+        adjustments = PromptProfiles.get_provider_adjustments("xai", self._prompt_profile)
+        directive = adjustments.get("provider_specific_instructions", "")
         return f"""{prompt}
 
-Keep your response concise and to the point (maximum 2-3 sentences)."""
+{directive}""" if directive else prompt
 
     def get_template_variables_info(self) -> Dict[str, List[TemplateVariable]]:
         """Get information about available template variables"""

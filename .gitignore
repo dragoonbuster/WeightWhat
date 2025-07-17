@@ -34,6 +34,9 @@ ENV/
 .env
 .env.local
 .env.production
+.env.keys
+.env.keys.*
+!.env.keys.example
 
 # IDE
 .vscode/
