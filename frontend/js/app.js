@@ -30,7 +30,10 @@ class SizeComparatorApp {
      * Initialize the comparison counter
      */
     initializeCounter() {
+        // Load immediately
         this.loadGlobalCounter();
+        // Also try after DOM settles
+        setTimeout(() => this.loadGlobalCounter(), 100);
         // Refresh counter periodically
         setInterval(() => this.loadGlobalCounter(), 30000); // Every 30 seconds
     }

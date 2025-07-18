@@ -405,19 +405,46 @@ class UnifiedSizeComparatorApp:
         async def legacy_single_compare(request_data: MVPComparisonRequest):
             """Legacy endpoint: basic comparison (maps to BASIC mode)"""
             service = await self._get_service_for_mode(ServiceMode.BASIC)
-            return await service.create_comparison(request_data)
+            result = await service.create_comparison(request_data)
+            
+            # Increment global counter on successful comparison
+            try:
+                new_count = await self.counter.increment()
+                logger.info(f"Global counter incremented to: {new_count}")
+            except Exception as e:
+                logger.warning(f"Failed to increment global counter: {e}", exc_info=True)
+            
+            return result
         
         @self.app.post("/api/compare/validated", response_model=MVPComparisonResponse)
         async def legacy_validated_compare(request_data: MVPComparisonRequest):
             """Legacy endpoint: validated comparison (maps to FULL_VALIDATION mode)"""
             service = await self._get_service_for_mode(ServiceMode.FULL_VALIDATION)
-            return await service.create_comparison(request_data)
+            result = await service.create_comparison(request_data)
+            
+            # Increment global counter on successful comparison
+            try:
+                new_count = await self.counter.increment()
+                logger.info(f"Global counter incremented to: {new_count}")
+            except Exception as e:
+                logger.warning(f"Failed to increment global counter: {e}", exc_info=True)
+            
+            return result
         
         @self.app.post("/api/compare/fast", response_model=MVPComparisonResponse)
         async def legacy_fast_compare(request_data: MVPComparisonRequest):
             """Legacy endpoint: fast comparison (maps to FAST_VALIDATION mode)"""
             service = await self._get_service_for_mode(ServiceMode.FAST_VALIDATION)
-            return await service.create_comparison(request_data)
+            result = await service.create_comparison(request_data)
+            
+            # Increment global counter on successful comparison
+            try:
+                new_count = await self.counter.increment()
+                logger.info(f"Global counter incremented to: {new_count}")
+            except Exception as e:
+                logger.warning(f"Failed to increment global counter: {e}", exc_info=True)
+            
+            return result
     
     def _setup_demo_endpoints(self):
         """Setup demo endpoints for different service modes"""
