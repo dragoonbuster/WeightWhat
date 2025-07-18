@@ -115,3 +115,6 @@ DEPLOYMENT.md
 *.pem
 *.key
 *.crt
+
+# DO NOT IGNORE - Counter data needs to be tracked
+# data/counter.json is intentionally tracked in git

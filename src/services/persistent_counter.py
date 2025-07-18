@@ -31,11 +31,16 @@ class PersistentCounter:
             self.storage_path = storage_path
         else:
             # Try multiple locations in order of preference
+            # First, try to find project root directory
+            current_file = Path(__file__).resolve()
+            project_root = current_file.parent.parent.parent  # Up 3 levels from services/persistent_counter.py
+            
             possible_paths = [
-                Path("/var/lib/weightwhat/counter.json"),
-                Path("/opt/WeightWhat/data/counter.json"),
-                Path.home() / ".weightwhat" / "counter.json",
-                Path("/tmp/sizecomparator_counter.json")
+                project_root / "data" / "counter.json",  # Project data directory - primary location
+                Path("/opt/WeightWhat/data/counter.json"),  # Production deployment location
+                Path("/var/lib/weightwhat/counter.json"),  # System location
+                Path.home() / ".weightwhat" / "counter.json",  # User home fallback
+                Path("/tmp/sizecomparator_counter.json")  # Temporary fallback
             ]
             
             # Find the first writable location
@@ -165,9 +170,14 @@ class PersistentCounter:
     
     async def _migrate_from_old_locations(self) -> int:
         """Try to find and migrate counter from old locations"""
+        # Get project root
+        current_file = Path(__file__).resolve()
+        project_root = current_file.parent.parent.parent
+        
         old_locations = [
-            Path("/var/lib/weightwhat/counter.json"),
+            project_root / "data" / "counter.json",
             Path("/opt/WeightWhat/data/counter.json"),
+            Path("/var/lib/weightwhat/counter.json"),
             Path.home() / ".weightwhat" / "counter.json",
             Path("/tmp/sizecomparator_counter.json")
         ]
