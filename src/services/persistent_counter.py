@@ -65,34 +65,38 @@ class PersistentCounter:
     async def get(self) -> int:
         """Get the current counter value"""
         async with self._lock:
-            # Try Redis first
-            if self.redis_client:
-                try:
-                    value = await self.redis_client.get(self.redis_key)
-                    if value is not None:
-                        logger.info(f"Counter from Redis: {value}")
-                        return int(value)
-                except Exception as e:
-                    logger.warning(f"Redis get failed: {e}, falling back to file storage")
-            
-            # Fall back to file storage
+            return await self._get_internal()
+    
+    async def _get_internal(self) -> int:
+        """Internal get method without lock (must be called with lock held)"""
+        # Try Redis first
+        if self.redis_client:
             try:
-                if self.storage_path.exists():
-                    data = json.loads(self.storage_path.read_text())
-                    count = data.get("count", 0)
-                    logger.info(f"Counter from file {self.storage_path}: {count}")
-                    return count
-                else:
-                    # Try to find and migrate from old locations
-                    count = await self._migrate_from_old_locations()
-                    if count > 0:
-                        logger.info(f"Migrated counter value: {count}")
-                        return count
-                    logger.info(f"Counter file {self.storage_path} does not exist, returning 0")
+                value = await self.redis_client.get(self.redis_key)
+                if value is not None:
+                    logger.info(f"Counter from Redis: {value}")
+                    return int(value)
             except Exception as e:
-                logger.warning(f"File read failed from {self.storage_path}: {e}, returning 0")
-            
-            return 0
+                logger.warning(f"Redis get failed: {e}, falling back to file storage")
+        
+        # Fall back to file storage
+        try:
+            if self.storage_path.exists():
+                data = json.loads(self.storage_path.read_text())
+                count = data.get("count", 0)
+                logger.info(f"Counter from file {self.storage_path}: {count}")
+                return count
+            else:
+                # Try to find and migrate from old locations
+                count = await self._migrate_from_old_locations()
+                if count > 0:
+                    logger.info(f"Migrated counter value: {count}")
+                    return count
+                logger.info(f"Counter file {self.storage_path} does not exist, returning 0")
+        except Exception as e:
+            logger.warning(f"File read failed from {self.storage_path}: {e}, returning 0")
+        
+        return 0
     
     async def increment(self) -> int:
         """Increment the counter and return the new value"""
@@ -109,7 +113,7 @@ class PersistentCounter:
             
             # Fall back to file storage
             try:
-                current = await self.get()
+                current = await self._get_internal()
                 new_value = current + 1
                 
                 # Ensure directory exists
@@ -144,7 +148,8 @@ class PersistentCounter:
                     logger.warning(f"Redis set failed: {e}")
             
             # Always update file
-            data = {"count": value, "updated_at": str(asyncio.get_event_loop().time())}
+            import time
+            data = {"count": value, "updated_at": time.time()}
             self.storage_path.write_text(json.dumps(data))
     
     def _update_file_backup(self, value: int) -> None:
@@ -173,8 +178,11 @@ class PersistentCounter:
                     data = json.loads(old_path.read_text())
                     count = data.get("count", 0)
                     if count > 0:
-                        # Migrate to new location
-                        await self.set(count)
+                        # Migrate to new location (directly write without lock since we're already in locked context)
+                        import time
+                        self.storage_path.parent.mkdir(parents=True, exist_ok=True)
+                        migrate_data = {"count": count, "updated_at": time.time()}
+                        self.storage_path.write_text(json.dumps(migrate_data))
                         logger.info(f"Migrated counter from {old_path} to {self.storage_path}")
                         # Keep old file as backup but rename it
                         try:
