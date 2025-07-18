@@ -6,6 +6,7 @@
 class SizeComparatorApp {
     constructor() {
         this.api = new SizeComparatorAPI();
+        this.comparisonCount = 0; // Initialize to 0
         this.initializeEventListeners();
         this.initializeCounter();
     }
@@ -47,18 +48,16 @@ class SizeComparatorApp {
             }
         } catch (error) {
             console.error('Failed to load global counter:', error);
-            // Fall back to localStorage if API fails
-            const savedCounter = localStorage.getItem('weightComparisons');
-            this.comparisonCount = savedCounter ? parseInt(savedCounter, 10) : 0;
+            // Just keep the current value if API fails
             this.updateCounterDisplay();
         }
     }
 
     /**
-     * Save counter to localStorage (kept for fallback)
+     * Save counter to localStorage (deprecated - kept for compatibility)
      */
     saveCounter() {
-        localStorage.setItem('weightComparisons', this.comparisonCount.toString());
+        // No longer using localStorage - backend handles persistence
     }
 
     /**
@@ -75,9 +74,8 @@ class SizeComparatorApp {
      * Increment the comparison counter
      */
     incrementCounter() {
-        this.comparisonCount++;
-        this.saveCounter(); // Keep local backup
-        this.updateCounterDisplay();
+        // Don't increment locally - just reload from server
+        // The server already incremented when processing the comparison
         
         // Add animation
         const counterDisplay = document.querySelector('.counter-display');
@@ -88,8 +86,8 @@ class SizeComparatorApp {
             }, 500);
         }
         
-        // Reload global counter after a short delay to get updated value
-        setTimeout(() => this.loadGlobalCounter(), 1000);
+        // Reload counter from server to get the real value
+        this.loadGlobalCounter();
     }
 
     /**
