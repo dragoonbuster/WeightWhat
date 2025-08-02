@@ -8,5 +8,6 @@ Provides RESTful API for weight comparisons with AI-powered visualizations.
 __version__ = "1.0.0"
 
 from .main import create_app
+from .simple_app import app as simple_app
 
 __all__ = ["create_app"]

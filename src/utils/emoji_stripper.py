@@ -149,15 +149,15 @@ def strip_emojis_and_symbols(text: str) -> str:
         # Meetei Mayek
         (0xABC0, 0xABFF),
         # Hangul Syllables
-        (0xAC00, 07AF),
+        (0xAC00, 0xD7AF),
         # Hangul Jamo Extended-B
-        (07B0, 07FF),
+        (0xD7B0, 0xD7FF),
         # High Surrogates
-        (0800, 0B7F),
+        (0xD800, 0xDB7F),
         # High Private Use Surrogates
-        (0B80, 0BFF),
+        (0xDB80, 0xDBFF),
         # Low Surrogates
-        (0C00, 0FFF),
+        (0xDC00, 0xDFFF),
         # Private Use Area
         (0xE000, 0xF8FF),
         # CJK Compatibility Ideographs

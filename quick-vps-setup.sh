@@ -62,8 +62,7 @@ Type=exec
 User=root
 WorkingDirectory=/opt/WeightWhat
 Environment="PATH=/opt/WeightWhat/venv/bin"
-ExecStart=/opt/WeightWhat/venv/bin/gunicorn src.api.unified_app:create_unified_app \
-    --factory \
+ExecStart=/opt/WeightWhat/venv/bin/gunicorn src.api.simple_app:app \
     --bind 127.0.0.1:8000 \
     --workers 2 \
     --worker-class uvicorn.workers.UvicornWorker \

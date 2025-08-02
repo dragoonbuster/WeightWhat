@@ -22,11 +22,7 @@ from fastapi.responses import JSONResponse
 
 from ..core.simple_config import get_config, SimpleConfig
 from ..models.errors import ErrorCategory, ErrorSeverity
-from ..services.comparison.comparison_service import ComparisonService, create_comparison_service
-from ..services.weight_processor import WeightProcessor
-from ..providers.factory import ProviderFactory
-from ..services.cache.redis_cache import RedisCache
-from ..services.cache.memory_cache import MemoryCache
+from ..core_services import WeightProcessor, ComparisonEngine, CacheManager
 
 # Import middleware
 from .middleware.request_id import RequestIDMiddleware

@@ -1,42 +1,8 @@
 """
-Services module for SizeComparator
-
-This module contains all business logic services including weight processing,
-configuration management, and AI provider integration.
+Services module - imports from core_services for backward compatibility.
 """
 
-from .weight_processor import (
-    WeightProcessor,
-    WeightUnit,
-    WeightItem,
-    WeightRange,
-    ValidationResult,
-    ValidationError,
-    ValidationWarning,
-    ConversionResult,
-    NormalizedWeight,
-    ProcessingMetadata,
-    WeightValidationException,
-    WeightConversionException,
-    WeightProcessingException,
-    create_weight_processor,
-    WEIGHT_ERROR_CODES
-)
+# Import from new location
+from ..core_services import WeightProcessor, ComparisonEngine, CacheManager
 
-__all__ = [
-    "WeightProcessor",
-    "WeightUnit", 
-    "WeightItem",
-    "WeightRange",
-    "ValidationResult",
-    "ValidationError",
-    "ValidationWarning",
-    "ConversionResult",
-    "NormalizedWeight",
-    "ProcessingMetadata",
-    "WeightValidationException",
-    "WeightConversionException", 
-    "WeightProcessingException",
-    "create_weight_processor",
-    "WEIGHT_ERROR_CODES"
-]
+__all__ = ['WeightProcessor', 'ComparisonEngine', 'CacheManager']

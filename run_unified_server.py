@@ -53,21 +53,9 @@ if __name__ == "__main__":
     
     try:
         # Now we can import from src directly
-        from src.core.environment import EnvironmentManager
-        from src.api.unified_app import create_unified_app, ServiceMode
+        from src.api.simple_app import app
         
-        # Create environment manager
-        env_manager = EnvironmentManager()
-        print(f" Environment: {env_manager.environment}")
-        
-        # Create the unified app
-        app = create_unified_app(env_manager)
-        print(f" App created: {app.title} v{app.version}")
-        
-        # Show available service modes
-        print(f" Available service modes:")
-        for mode in ServiceMode:
-            print(f"   • {mode.value}: {mode.name}")
+        print(f" App created: SizeComparator Simplified API")
         
         # Start the server
         # Determine port
