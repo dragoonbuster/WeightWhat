@@ -375,7 +375,7 @@ class ComparisonService:
         else:
             normalized_kg = round(weight_kg, 0)
             
-        return f"comparison:v1:{normalized_kg}:{comparison_style}"
+        return f"comparison1:{normalized_kg}:{comparison_style}"
         
     def _enrich_cached_response(
         self,

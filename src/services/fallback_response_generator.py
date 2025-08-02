@@ -96,21 +96,21 @@ class FallbackResponseGenerator:
     async def generate_comprehensive_repository(self) -> Dict[str, Any]:
         """Generate a comprehensive repository of fallback responses"""
         
-        print(f"🚀 Generating comprehensive fallback response repository...")
-        print(f"📊 Targeting {len(self.weight_ranges)} weight ranges × {len(self.styles)} styles × {self.responses_per_combination} responses = {len(self.weight_ranges) * len(self.styles) * self.responses_per_combination} total responses")
+        print(f" Generating comprehensive fallback response repository...")
+        print(f" Targeting {len(self.weight_ranges)} weight ranges × {len(self.styles)} styles × {self.responses_per_combination} responses = {len(self.weight_ranges) * len(self.styles) * self.responses_per_combination} total responses")
         
         total_generated = 0
         total_failed = 0
         
         for weight_range in self.weight_ranges:
-            print(f"\n🎯 Processing weight range: {weight_range.name} ({weight_range.min_kg}-{weight_range.max_kg}kg)")
+            print(f"\n Processing weight range: {weight_range.name} ({weight_range.min_kg}-{weight_range.max_kg}kg)")
             
             # Initialize range in repository
             if weight_range.name not in self.repository:
                 self.repository[weight_range.name] = {}
             
             for style in self.styles:
-                print(f"  📝 Style: {style}")
+                print(f"   Style: {style}")
                 
                 # Initialize style in repository
                 if style not in self.repository[weight_range.name]:
@@ -127,13 +127,13 @@ class FallbackResponseGenerator:
                             if response:
                                 self.repository[weight_range.name][style].append(response)
                                 total_generated += 1
-                                print(f"    ✅ Generated response {i+1}/{responses_per_weight} for {weight_kg}kg")
+                                print(f"     Generated response {i+1}/{responses_per_weight} for {weight_kg}kg")
                             else:
                                 total_failed += 1
-                                print(f"    ❌ Failed to generate response {i+1}/{responses_per_weight} for {weight_kg}kg")
+                                print(f"     Failed to generate response {i+1}/{responses_per_weight} for {weight_kg}kg")
                         except Exception as e:
                             total_failed += 1
-                            print(f"    ❌ Error generating response for {weight_kg}kg: {e}")
+                            print(f"     Error generating response for {weight_kg}kg: {e}")
                 
                 # Add some buffer time between styles
                 await asyncio.sleep(0.5)
@@ -141,10 +141,10 @@ class FallbackResponseGenerator:
         # Save repository
         self._save_repository()
         
-        print(f"\n🎉 Repository generation complete!")
-        print(f"✅ Generated: {total_generated} responses")
-        print(f"❌ Failed: {total_failed} responses")
-        print(f"📁 Saved to: {self.repository_file}")
+        print(f"\n Repository generation complete!")
+        print(f" Generated: {total_generated} responses")
+        print(f" Failed: {total_failed} responses")
+        print(f" Saved to: {self.repository_file}")
         
         return {
             "total_generated": total_generated,
@@ -266,11 +266,11 @@ class FallbackResponseGenerator:
                         FallbackResponse(**response_data) for response_data in responses
                     ]
             
-            print(f"✅ Loaded {data.get('total_responses', 0)} fallback responses from {self.repository_file}")
+            print(f" Loaded {data.get('total_responses', 0)} fallback responses from {self.repository_file}")
             return True
             
         except Exception as e:
-            print(f"❌ Error loading repository: {e}")
+            print(f" Error loading repository: {e}")
             return False
     
     def get_random_response(self, weight_kg: float, style: str = "default") -> Optional[FallbackResponse]:
@@ -351,7 +351,7 @@ async def test_fallback_responses():
         test_weights = [0.5, 5.0, 50.0, 500.0]
         test_styles = ["default", "creative", "technical"]
         
-        print("\n🧪 Testing fallback responses:")
+        print("\n Testing fallback responses:")
         for weight in test_weights:
             for style in test_styles:
                 response = generator.get_random_response(weight, style)
@@ -362,13 +362,13 @@ async def test_fallback_responses():
         
         # Show stats
         stats = generator.get_repository_stats()
-        print(f"\n📊 Repository Statistics:")
+        print(f"\n Repository Statistics:")
         print(f"  Total responses: {stats['total_responses']}")
         print(f"  Coverage: {stats['coverage']['percentage']:.1f}%")
         print(f"  By style: {stats['by_style']}")
     
     else:
-        print("❌ No repository found. Run generate_fallback_repository() first.")
+        print(" No repository found. Run generate_fallback_repository() first.")
 
 
 if __name__ == "__main__":

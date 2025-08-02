@@ -75,7 +75,7 @@ class ResponseParser:
         prefixes_to_remove = [
             r'^(Here\'s a comparison|To help you understand|This weight)',
             r'^(A weight of|The weight of)',
-            r'^(Comparison:|Weight comparison:)'
+            r'^(ComparisonWeight comparison'
         ]
         
         for prefix in prefixes_to_remove:

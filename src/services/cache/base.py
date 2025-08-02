@@ -96,7 +96,7 @@ class CacheService(ABC, Generic[T]):
         Flush cache keys matching pattern.
         
         Args:
-            pattern: Optional glob pattern (e.g., "user:*")
+            pattern: Optional glob pattern (e.g., "user")
             
         Returns:
             Number of keys deleted

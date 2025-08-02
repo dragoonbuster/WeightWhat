@@ -149,15 +149,15 @@ def strip_emojis_and_symbols(text: str) -> str:
         # Meetei Mayek
         (0xABC0, 0xABFF),
         # Hangul Syllables
-        (0xAC00, 0xD7AF),
+        (0xAC00, 07AF),
         # Hangul Jamo Extended-B
-        (0xD7B0, 0xD7FF),
+        (07B0, 07FF),
         # High Surrogates
-        (0xD800, 0xDB7F),
+        (0800, 0B7F),
         # High Private Use Surrogates
-        (0xDB80, 0xDBFF),
+        (0B80, 0BFF),
         # Low Surrogates
-        (0xDC00, 0xDFFF),
+        (0C00, 0FFF),
         # Private Use Area
         (0xE000, 0xF8FF),
         # CJK Compatibility Ideographs
@@ -235,8 +235,8 @@ def strip_emojis_and_symbols(text: str) -> str:
         # Classic emoticons
         r'[:;=8][\'`\-]?[)DPp\]\}3>oO0\*\|\\\/\[@]',
         r'[)DPp\]\}3>oO0\*\|\\\/\[@][\'`\-]?[:;=8]',
-        r'<3+', r'</3+',
-        # XD, xD variations
+        r'+', r'+',
+        # ,  variations
         r'[xX][dD]+',
         # Japanese emoticons
         r'\^_+\^', r'>_+<', r'o_+o', r'O_+O', r'T_+T',
@@ -305,9 +305,9 @@ def get_all_emoji_patterns() -> List[str]:
         
         # ASCII emoticons
         r'[:;=8][\'\-]?[)DPp\]\}3>oO0\*\|\\\/\[@]',
-        r'<3+', r'</3+', r'[xX][dD]+',
+        r'+', r'+', r'[xX][dD]+',
         
         # Decorative symbols
-        r'[♥♡★☆✓✔✗✘→←↑↓•◆◇■□●○▲△▼▽◄►※⚡⭐]',
+        r'[→←↑↓•◆◇■□●○▲△▼▽◄►※⭐]',
     ]
     return patterns

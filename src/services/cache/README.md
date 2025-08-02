@@ -129,7 +129,7 @@ The cache service uses hierarchical key structures for efficient invalidation:
 
 ### AI Responses
 ```
-ai:v1:openai:gpt_4:abc123def:10.5kg
+ai1penai:gpt_4:abc123def:10.5kg
 ```
 - `ai`: Prefix for AI responses
 - `v1`: Version
@@ -304,10 +304,10 @@ was_set = await cache.set_if_not_exists("lock:resource", "owner", ttl=60)
 
 ```python
 # Invalidate all AI responses from OpenAI
-await cache.flush("ai:*:openai:*")
+await cache.flush("aipenai")
 
 # Invalidate all user data
-await cache.flush("user:123:*")
+await cache.flush("user:123")
 
 # Get invalidation patterns for AI responses
 from src.services.cache import CacheKeyBuilder

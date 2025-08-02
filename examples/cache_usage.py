@@ -210,7 +210,7 @@ async def cache_stats_and_health():
     
     # Health check
     is_healthy = await cache.health_check()
-    print(f"\nCache Health: {'✓ Healthy' if is_healthy else '✗ Unhealthy'}")
+    print(f"\nCache Health: {' Healthy' if is_healthy else ' Unhealthy'}")
     
     print()
 
@@ -225,19 +225,19 @@ async def cache_invalidation():
     await cache.set("user:123:profile", {"name": "John", "age": 30}, ttl=300)
     await cache.set("user:123:settings", {"theme": "dark"}, ttl=300)
     await cache.set("user:456:profile", {"name": "Jane", "age": 25}, ttl=300)
-    await cache.set("config:app:version", "1.0.0", ttl=300)
+    await cache.set("config:appersion", "1.0.0", ttl=300)
     
     print("Keys before invalidation:")
-    for key in ["user:123:profile", "user:123:settings", "user:456:profile", "config:app:version"]:
+    for key in ["user:123:profile", "user:123:settings", "user:456:profile", "config:appersion"]:
         exists = await cache.exists(key)
         print(f"  {key}: {'exists' if exists else 'missing'}")
     
     # Invalidate user 123's data
-    invalidated = await cache.flush("user:123:*")
-    print(f"\nInvalidated {invalidated} keys matching 'user:123:*'")
+    invalidated = await cache.flush("user:123")
+    print(f"\nInvalidated {invalidated} keys matching 'user:123'")
     
     print("\nKeys after invalidation:")
-    for key in ["user:123:profile", "user:123:settings", "user:456:profile", "config:app:version"]:
+    for key in ["user:123:profile", "user:123:settings", "user:456:profile", "config:appersion"]:
         exists = await cache.exists(key)
         print(f"  {key}: {'exists' if exists else 'missing'}")
     
@@ -256,7 +256,7 @@ async def main():
         await cache_stats_and_health()
         await cache_invalidation()
         
-        print("All examples completed successfully! ✓")
+        print("All examples completed successfully! ")
         
     except Exception as e:
         print(f"Error running examples: {e}")

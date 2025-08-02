@@ -139,13 +139,13 @@ def invalidate_cache(
         related_patterns: Additional patterns to invalidate
         
     Usage:
-        @invalidate_cache(key_pattern="ai_response:*")
+        @invalidate_cache(key_pattern="ai_response")
         async def update_ai_model():
             # Update AI model configuration
             pass
         
         @invalidate_cache(
-            key_builder=lambda args, kwargs: f"weight:{args[0].id}:*"
+            key_builder=lambda args, kwargs: f"weight:{args[0].id}"
         )
         async def update_weight(weight_id, new_data):
             # Update weight data

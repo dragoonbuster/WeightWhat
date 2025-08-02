@@ -31,9 +31,9 @@ async def test_counter():
     print(f"Value from new instance: {persisted_value}")
     
     if persisted_value == new_value:
-        print("✓ Counter persistence working correctly!")
+        print(" Counter persistence working correctly!")
     else:
-        print("✗ Counter persistence FAILED!")
+        print(" Counter persistence FAILED!")
         return False
     
     # Show storage location
@@ -50,9 +50,9 @@ async def test_counter():
     
     expected = new_value + 5
     if final_value == expected:
-        print("✓ Concurrent increments working correctly!")
+        print(" Concurrent increments working correctly!")
     else:
-        print(f"✗ Concurrent increments FAILED! Expected {expected}, got {final_value}")
+        print(f" Concurrent increments FAILED! Expected {expected}, got {final_value}")
         return False
     
     return True

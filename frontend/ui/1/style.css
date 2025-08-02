@@ -286,7 +286,7 @@ button:active {
 
 /* Lives decoration */
 .container::after {
-    content: "♥ ♥ ♥";
+    content: "  ";
     position: absolute;
     top: -25px;
     left: 20px;

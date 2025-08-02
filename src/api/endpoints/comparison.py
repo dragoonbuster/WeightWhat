@@ -458,7 +458,7 @@ def _generate_cache_key(request_data: WeightComparisonRequest) -> str:
     key_string = ":".join(key_components)
     key_hash = hashlib.md5(key_string.encode()).hexdigest()
     
-    return f"comparison:v1:{key_hash}"
+    return f"comparison1:{key_hash}"
 
 
 async def _cache_response(

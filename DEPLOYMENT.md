@@ -20,8 +20,8 @@ The simplest option - just funny pre-written comparisons.
 
 ### Custom Domain Setup
 In Namecheap, add:
-- **A Record:** @ → 75.2.60.5 (Netlify)
-- **CNAME:** www → yoursite.netlify.app
+- **A Record* @ → 75.2.60.5 (Netlify)
+- **CNAME* www → yoursite.netlify.app
 
 ## Option 2: Simple VPS with AI ($6/month)
 

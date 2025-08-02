@@ -35,11 +35,11 @@ async def test_frontend_sync():
     
     # Verify sync
     if frontend_display == backend_new_value == reloaded_value:
-        print("\n✓ Frontend/backend sync working correctly!")
+        print("\n Frontend/backend sync working correctly!")
         print("  - Frontend optimistic update matches backend")
         print("  - Reload confirms correct value")
     else:
-        print("\n✗ Sync issue detected!")
+        print("\n Sync issue detected!")
         print(f"  - Frontend showed: {frontend_display}")
         print(f"  - Backend incremented to: {backend_new_value}")
         print(f"  - Reload returned: {reloaded_value}")
@@ -82,12 +82,12 @@ async def test_frontend_sync():
     expected_final = start_value + 3
     
     if final_value == expected_final:
-        print(f"\n✓ Race condition handled correctly!")
+        print(f"\n Race condition handled correctly!")
         print(f"  - Started at: {start_value}")
         print(f"  - Expected after 3 increments: {expected_final}")
         print(f"  - Actual final value: {final_value}")
     else:
-        print(f"\n✗ Race condition issue!")
+        print(f"\n Race condition issue!")
         print(f"  - Expected: {expected_final}, Got: {final_value}")
         return False
     
